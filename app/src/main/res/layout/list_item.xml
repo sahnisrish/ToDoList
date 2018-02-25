@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background">
+    <CheckBox
+        android:id="@+id/Completed"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:id="@+id/ToDoLayout"
+        android:paddingLeft="10dp"
+        android:background="@drawable/list_item"
+        android:layout_width="0dp"
+        android:layout_weight="10"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/item_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Item"
+            android:textColor="@color/textColor"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Deadline:"
+                android:layout_weight="2"
+                android:textColor="@color/textDescriptionColor"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+                android:layout_gravity="center"/>
+            <TextView
+                android:id="@+id/item_deadline"
+                android:gravity="right"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="DD/MM/YYYY"
+                android:textColor="@color/textDescriptionColor"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

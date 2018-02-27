@@ -24,7 +24,9 @@ public class ListItem {
         string = string.substring(6, 8) + "/" + Constant.MONTHS.get(month) + "/" + string.substring(0, 4);
         return string;
     }
-
+    public Integer getDeadLineInt(){
+        return deadLine;
+    }
     public boolean liesAbove(ListItem li) {
         return li.deadLine >= deadLine;
     }

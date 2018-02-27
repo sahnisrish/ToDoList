@@ -92,6 +92,9 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
                 if(toBeDeleted.size()>0)
                     deleteItems();
                 Intent intent = new Intent(this, AddItem.class);
+                bundle=new Bundle();
+                bundle.putInt(Constant.REQUEST_KEY,Constant.REQUEST_ADD);
+                intent.putExtras(bundle);
                 startActivityForResult(intent, Constant.REQUEST_ADD);
         }
         return super.onOptionsItemSelected(item);
@@ -163,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
         Intent intent=new Intent(this,DispalyItem.class);
         bundle=new Bundle();
         bundle.putInt(Constant.ID_KEY,(Integer) v.getTag());
+        bundle.putInt(Constant.REQUEST_KEY,Constant.REQUEST_EDIT);
         intent.putExtras(bundle);
         startActivityForResult(intent,Constant.REQUEST_EDIT);
     }

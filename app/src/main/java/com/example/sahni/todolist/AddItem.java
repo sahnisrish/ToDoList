@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.sahni.todolist.Contract.ItemList;
 
@@ -32,6 +33,7 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
     ArrayAdapter<String> days;
     ArrayAdapter<String> months;
     ArrayAdapter<String> years;
+    int REQUEST;
     int id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +46,8 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
         Day=findViewById(R.id.day);
         Month=findViewById(R.id.month);
         Year=findViewById(R.id.year);
-        if(bundle!=null)
+        REQUEST=bundle.getInt(Constant.REQUEST_KEY);
+        if(REQUEST==Constant.REQUEST_EDIT)
             setValues();
         createDateBar();
     }
@@ -60,10 +63,13 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
                 cursor.getInt(cursor.getColumnIndex(Contract.ItemList.ID)));
         ToDo.setText(item.getItemName());
         Description.setText(cursor.getString(cursor.getColumnIndex(ItemList.DESCRIPTION)));
-        ParseDate(item.getDeadLine());
+        ParseDate(item.getDeadLineInt());
     }
 
-    private void ParseDate(String deadLine) {
+    private void ParseDate(Integer deadLine) {
+        day=Integer.parseInt(deadLine.toString().substring(6,8))-Integer.parseInt(Constant.DAYS.get(0));
+        month=Integer.parseInt(deadLine.toString().substring(4,6));
+        day=Integer.parseInt(deadLine.toString().substring(0,4))-Integer.parseInt(Constant.YEARS.get(0));
     }
 
     private void createDateBar() {
@@ -125,11 +131,21 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
             else
                 values.put(ItemList.DEADLINE,Integer.parseInt(Constant.YEARS.get(year)+"0"+month+Constant.DAYS.get(day)));
             values.put(ItemList.DESCRIPTION,Description.getText().toString());
-            long id=database.insert(ItemList.TABLE_NAME,null,values);
-            Bundle bundle=new Bundle();
-            bundle.putInt(Constant.ID_KEY, Integer.parseInt(id+""));
-            intent.putExtras(bundle);
-            setResult(Constant.RSULT_ADD,intent);
+            if(REQUEST==Constant.REQUEST_ADD) {
+                id = (int) database.insert(ItemList.TABLE_NAME, null, values);
+                Bundle bundle=new Bundle();
+                bundle.putInt(Constant.ID_KEY, Integer.parseInt(id+""));
+                intent.putExtras(bundle);
+                setResult(Constant.RSULT_ADD,intent);
+            }
+            else if(REQUEST==Constant.REQUEST_EDIT){
+                database.update(ItemList.TABLE_NAME,values, ItemList.ID+"=?", new String[]{id + ""});
+                Bundle bundle=new Bundle();
+                bundle.putInt(Constant.ID_KEY, Integer.parseInt(id+""));
+                bundle.putBoolean(Constant.EDIT,true);
+                intent.putExtras(bundle);
+                setResult(Constant.RSULT_EDIT,intent);
+            }
             finish();
         }
         return super.onOptionsItemSelected(item);

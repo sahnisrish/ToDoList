@@ -24,10 +24,10 @@ public class DispalyItem extends AppCompatActivity {
         intent=getIntent();
         bundle=intent.getExtras();
         id=bundle.getInt(Constant.ID_KEY);
-        setDataBar();
+        setData();
     }
 
-    private void setDataBar() {
+    private void setData() {
         SQLiteDatabase database=openHelper.getReadableDatabase();
         Cursor cursor=database.query(Contract.ItemList.TABLE_NAME,null,Contract.ItemList.ID+"=?", new String[]{id + ""},null,null,null);
         cursor.moveToNext();
@@ -57,6 +57,7 @@ public class DispalyItem extends AppCompatActivity {
         if(item.getItemId()==Constant.MenuID.EDIT)
         {
             Intent intent = new Intent(this, AddItem.class);
+            bundle.putInt(Constant.REQUEST_KEY,Constant.REQUEST_EDIT);
             intent.putExtras(bundle);
             startActivityForResult(intent, Constant.REQUEST_EDIT);
         }
@@ -67,16 +68,17 @@ public class DispalyItem extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode==Constant.RSULT_EDIT)
         {
-            intent.putExtras(bundle);
-            setResult(Constant.RSULT_EDIT,intent);
-            finish();
+            setData();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
     public void onBackPressed() {
-        setResult(-1);
+        if(bundle.getBoolean(Constant.EDIT,false)) {
+            intent.putExtras(bundle);
+            setResult(Constant.RSULT_EDIT, intent);
+        }
         super.onBackPressed();
     }
 }

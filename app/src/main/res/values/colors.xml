@@ -7,5 +7,6 @@
     <color name="itemBackground">#FCB3CB</color>
     <color name="colorAccent">#FF4081</color>
     <color name="textColor">#000000</color>
+    <color name="deselectedColor">#bfbfbf</color>
     <color name="textDescriptionColor">#6d6b6b</color>
 </resources>

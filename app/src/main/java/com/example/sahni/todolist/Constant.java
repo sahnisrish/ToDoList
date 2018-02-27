@@ -12,6 +12,8 @@ public class Constant {
     public static final int REQUEST_EDIT=2;
     public static final int RSULT_EDIT=2;
     public static final String ID_KEY="id";
+    public static final String REQUEST_KEY="request";
+    public static final String EDIT="edit";
     public static final ArrayList<String> MONTHS=setMonth();
     static class MenuID {
         public static final int ADD=1;

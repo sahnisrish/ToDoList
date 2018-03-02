@@ -53,21 +53,27 @@
         <EditText
             android:hint="Tags"
             android:id="@+id/AddTag"
-            android:inputType="textCapCharacters"
+            android:inputType="text"
+            android:text=""
             android:layout_width="wrap_content"
             android:layout_weight="1"
             android:layout_height="wrap_content" />
         <Button
+            android:id="@+id/addtags"
             android:layout_width="wrap_content"
             android:layout_height="30sp"
             android:text="ADD"
             android:background="@drawable/button"/>
     </LinearLayout>
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:id="@+id/selectedTags"/>
+    </HorizontalScrollView>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -79,6 +85,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content" />
         <Button
+            android:id="@+id/addcomment"
             android:layout_width="wrap_content"
             android:layout_height="30sp"
             android:text="ADD"

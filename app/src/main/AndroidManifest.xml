@@ -17,7 +17,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".AddItem" />
-        <activity android:name=".DispalyItem"></activity>
+        <activity android:name=".DispalyItem" />
     </application>
 
 </manifest>

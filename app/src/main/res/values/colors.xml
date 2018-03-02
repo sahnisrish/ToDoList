@@ -8,5 +8,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="textColor">#000000</color>
     <color name="deselectedColor">#bfbfbf</color>
-    <color name="textDescriptionColor">#6d6b6b</color>
+    <color name="deselectedColorDark">#7a7a7a</color>
+    <color name="textDescriptionColor">#353535</color>
+    <color name="tagBar">#ffffff</color>
 </resources>

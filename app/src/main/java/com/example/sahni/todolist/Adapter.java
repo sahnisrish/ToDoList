@@ -1,6 +1,7 @@
 package com.example.sahni.todolist;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,8 @@ public class Adapter extends BaseAdapter {
     ArrayList<ListItem> list;
     Context context;
     CheckedListener checkedListener;
+    ItemLongClickedListener itemLongClickedListener;
+    ItemClickedListener tagClickedListener;
     ItemClickedListener itemClickedListener;
     interface CheckedListener extends CompoundButton.OnCheckedChangeListener {
 
@@ -29,11 +32,16 @@ public class Adapter extends BaseAdapter {
     interface ItemClickedListener extends View.OnClickListener{
 
     }
-    Adapter(Context context, ArrayList<ListItem> list, CheckedListener checkedListener, ItemClickedListener itemClickedListener){
+    interface ItemLongClickedListener extends View.OnLongClickListener{
+
+    }
+    Adapter(Context context, ArrayList<ListItem> list, CheckedListener checkedListener, ItemClickedListener itemClickedListener,ItemLongClickedListener itemLongClickedListener,ItemClickedListener tagClickedListener){
         this.context=context;
         this.list=list;
         this.checkedListener=checkedListener;
         this.itemClickedListener=itemClickedListener;
+        this.itemLongClickedListener=itemLongClickedListener;
+        this.tagClickedListener=tagClickedListener;
     }
     @Override
     public int getCount() {
@@ -61,8 +69,10 @@ public class Adapter extends BaseAdapter {
             holder.name=view.findViewById(R.id.item_name);
             holder.deadline=view.findViewById(R.id.item_deadline);
             holder.completed=view.findViewById(R.id.Completed);
+            holder.tagsBar=view.findViewById(R.id.tagsBar);
             holder.completed.setOnCheckedChangeListener(checkedListener);
             holder.item.setOnClickListener(itemClickedListener);
+            holder.item.setOnLongClickListener(itemLongClickedListener);
             view.setTag(holder);
         }
         ViewHolder holder=(ViewHolder)view.getTag();
@@ -71,8 +81,8 @@ public class Adapter extends BaseAdapter {
         holder.name.setText(list.get(position).getItemName());
         holder.deadline.setText(list.get(position).getDeadLine());
         holder.completed.setChecked(false);
-        Tag tag=new Tag(list.get(position).getId(),holder.item);
-        holder.completed.setTag(tag);
+        holder.completed.setTag(list.get(position).getId());
+        TagView.addMultipleTags(context,holder.tagsBar,list.get(position).getId(),tagClickedListener,null);
         return view;
     }
     class ViewHolder{
@@ -80,14 +90,6 @@ public class Adapter extends BaseAdapter {
         TextView deadline;
         CheckBox completed;
         LinearLayout item;
-    }
-    class Tag{
-        int id;
-        LinearLayout item;
-        Tag(int id,LinearLayout item)
-        {
-            this.id=id;
-            this.item=item;
-        }
+        LinearLayout tagsBar;
     }
 }

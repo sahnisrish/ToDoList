@@ -22,12 +22,29 @@ public class ItemOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String create="CREATE TABLE "+Contract.ItemList.TABLE_NAME+" ( "+
+        String createItem="CREATE TABLE "+Contract.ItemList.TABLE_NAME+" ( "+
                 Contract.ItemList.ID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
                 Contract.ItemList.ITEM+" TEXT, "+
                 Contract.ItemList.DESCRIPTION+" TEXT, "+
                 Contract.ItemList.DEADLINE+" INTEGER)";
-        db.execSQL(create);
+        db.execSQL(createItem);
+        String createTags="CREATE TABLE "+Contract.TagsList.TABLE_NAME+" ("+
+                Contract.TagsList.ID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
+                Contract.TagsList.TAG+" TEXT)";
+        db.execSQL(createTags);
+        String createTagAssign="CREATE TABLE "+Contract.TagAssignment.TABLE_NAME+" ("+
+                Contract.TagAssignment.ID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
+                Contract.TagAssignment.ITEM_ID+" INTEGER, "+
+                Contract.TagAssignment.TAG_ID+" INTEGER, "+
+                "FOREIGN KEY ("+Contract.TagAssignment.ITEM_ID+") REFERENCES "+Contract.ItemList.TABLE_NAME+" ("+Contract.ItemList.ID+") , "+
+                "FOREIGN KEY ("+Contract.TagAssignment.TAG_ID+") REFERENCES "+Contract.TagsList.TABLE_NAME+" ("+Contract.TagsList.ID+") )";
+        db.execSQL(createTagAssign);
+    }
+
+    @Override
+    public void onConfigure(SQLiteDatabase db) {
+        db.setForeignKeyConstraintsEnabled(true);
+        super.onConfigure(db);
     }
 
     @Override

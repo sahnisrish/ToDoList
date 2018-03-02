@@ -41,6 +41,8 @@ public class DispalyItem extends AppCompatActivity {
         ToDo.setText(item.getItemName());
         Description.setText(cursor.getString(cursor.getColumnIndex(Contract.ItemList.DESCRIPTION)));
         Date.setText(item.getDeadLine());
+        LinearLayout tagsBar=findViewById(R.id.tags);
+        TagView.addMultipleTags(this,tagsBar,id,null,null);
     }
     public boolean onCreateOptionsMenu(Menu menu)
     {

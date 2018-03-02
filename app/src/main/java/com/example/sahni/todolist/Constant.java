@@ -14,13 +14,15 @@ public class Constant {
     public static final String ID_KEY="id";
     public static final String REQUEST_KEY="request";
     public static final String EDIT="edit";
-    public static final ArrayList<String> MONTHS=setMonth();
+    public static final String  TAG_ID="tag_id";
+    public static final String TAG="tag";
+    public static final String HAS_TAG="hasTag";
     static class MenuID {
         public static final int ADD=1;
         public static final int SAVE=2;
         public static final int EDIT=3;
     }
-
+    public static final ArrayList<String> MONTHS=setMonth();
     private static ArrayList<String> setMonth() {
         ArrayList<String> month=new ArrayList<>();
         month.add("JAN");

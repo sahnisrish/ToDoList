@@ -4,8 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.example.sahni.todolist.MainActivity">
-
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/tagBar"
+        android:id="@+id/titleTag"/>
     <ListView
         android:id="@+id/ListView"
         android:layout_width="match_parent"

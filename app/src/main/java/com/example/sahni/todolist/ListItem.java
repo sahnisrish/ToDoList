@@ -1,6 +1,8 @@
 package com.example.sahni.todolist;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by sahni on 16/2/18.
@@ -8,23 +10,23 @@ import java.util.ArrayList;
 
 public class ListItem {
     private String itemName;
-    private Integer deadLine;
+    private Long deadLine;
+    private int priority;
     int id;
 
-    ListItem(String itemName, Integer deadLine, int id) {
+    ListItem(String itemName, Long deadLine, int priority, int id) {
         this.itemName = itemName;
         this.deadLine = deadLine;
         this.id = id;
+        this.priority=priority;
 
     }
 
     public String getDeadLine() {
-        String string = deadLine.toString();
-        int month = Integer.parseInt(deadLine.toString().substring(4, 6));
-        string = string.substring(6, 8) + "/" + Constant.MONTHS.get(month) + "/" + string.substring(0, 4);
-        return string;
+        Date date=new Date(deadLine);
+        return Constant.format.format(date);
     }
-    public Integer getDeadLineInt(){
+    public Long getDeadLineLong(){
         return deadLine;
     }
     public boolean liesAbove(ListItem li) {
@@ -43,4 +45,7 @@ public class ListItem {
         return itemName;
     }
 
+    public int getPriority() {
+        return priority;
+    }
 }

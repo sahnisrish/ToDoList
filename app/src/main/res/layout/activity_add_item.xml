@@ -48,6 +48,52 @@
         android:layout_height="match_parent"/>
 </LinearLayout>
     <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:id="@+id/priority">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Priority:"
+            android:layout_marginRight="10dp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+        <Button
+            android:id="@+id/none"
+            android:layout_width="0dp"
+            android:onClick="setPriority"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:background="@drawable/selected_button"
+            android:text="None"/>
+        <Button
+            android:id="@+id/low"
+            android:onClick="setPriority"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:background="@drawable/selected_button"
+            android:text="Low"/>
+        <Button
+            android:id="@+id/medium"
+            android:onClick="setPriority"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:background="@drawable/selected_button"
+            android:text="Medium"/>
+
+        <Button
+            android:id="@+id/high"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/selected_button"
+            android:onClick="setPriority"
+            android:text="High" />
+
+    </LinearLayout>
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <EditText
@@ -61,7 +107,7 @@
         <Button
             android:id="@+id/addtags"
             android:layout_width="wrap_content"
-            android:layout_height="30sp"
+            android:layout_height="30dp"
             android:text="ADD"
             android:background="@drawable/button"/>
     </LinearLayout>
@@ -87,7 +133,7 @@
         <Button
             android:id="@+id/addcomment"
             android:layout_width="wrap_content"
-            android:layout_height="30sp"
+            android:layout_height="30dp"
             android:text="ADD"
             android:background="@drawable/button"/>
     </LinearLayout>

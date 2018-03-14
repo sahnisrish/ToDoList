@@ -32,7 +32,8 @@ public class DispalyItem extends AppCompatActivity {
         Cursor cursor=database.query(Contract.ItemList.TABLE_NAME,null,Contract.ItemList.ID+"=?", new String[]{id + ""},null,null,null);
         cursor.moveToNext();
         item=new ListItem(cursor.getString(cursor.getColumnIndex(Contract.ItemList.ITEM)),
-                cursor.getInt(cursor.getColumnIndex(Contract.ItemList.DEADLINE)),
+                cursor.getLong(cursor.getColumnIndex(Contract.ItemList.DEADLINE)),
+                cursor.getInt(cursor.getColumnIndex(Contract.ItemList.PRIORITY)),
                 cursor.getInt(cursor.getColumnIndex(Contract.ItemList.ID)));
         LinearLayout dataBar=findViewById(R.id.dataBar);
         TextView ToDo=dataBar.findViewById(R.id.todo);
@@ -50,6 +51,7 @@ public class DispalyItem extends AppCompatActivity {
         inflater.inflate(R.menu.main_menu,menu);
         menu.add(Menu.NONE,Constant.MenuID.EDIT,Menu.NONE,"EDIT");
         MenuItem edit=menu.findItem(Constant.MenuID.EDIT);
+        edit.setIcon(R.drawable.ic_create_white_48dp);
         edit.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }

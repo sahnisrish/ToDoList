@@ -1,21 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.example.sahni.todolist.MainActivity">
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:theme="@style/AppTheme.Overlay">
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:contentScrim="?attr/colorPrimary"
+            app:toolbarId="@id/toolBar">
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolBar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                android:theme="@style/AppTheme.popupOverlay"/>
+        </android.support.design.widget.CollapsingToolbarLayout>
+    </android.support.design.widget.AppBarLayout>
+    <include layout="@layout/content_main"/>
     <LinearLayout
-        android:orientation="vertical"
+        android:id="@+id/titleTag"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/tagBar"
-        android:id="@+id/titleTag"/>
-    <ListView
-        android:id="@+id/ListView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </ListView>
+        android:background="?attr/colorPrimary"
+        android:orientation="horizontal"
+        android:layout_gravity="bottom" />
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:id="@+id/add"
+        android:layout_height="wrap_content"
+        app:layout_anchorGravity="bottom|right"
+        app:layout_anchor="@id/appBar"
+        android:layout_margin="16dp"
+        app:srcCompat="@drawable/ic_add_black_24dp"
+        />
 
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

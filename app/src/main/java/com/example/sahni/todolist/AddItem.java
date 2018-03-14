@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,7 +30,12 @@ import android.widget.Toast;
 
 import com.example.sahni.todolist.Contract.ItemList;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class AddItem extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener, View.OnLongClickListener {
     //Activity
@@ -43,9 +49,8 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
     Spinner Day;
     Spinner Month;
     Spinner Year;
-    int day=0;
-    int year=0;
-    int month=0;
+    String setDate;
+    Long presetDate;
     ArrayAdapter<String> days;
     ArrayAdapter<String> months;
     ArrayAdapter<String> years;
@@ -55,6 +60,8 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
     EditText tagText;
     ArrayList<Integer> addedTagIds;
     ArrayList<Integer> removedTagIds;
+    //Priority
+    Button priority;
     //Database
     ItemOpenHelper openHelper;
     SQLiteDatabase database;
@@ -62,6 +69,7 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_item);
+        setPriorityTag();
         openHelper=ItemOpenHelper.getInstance(this);
         ToDo=findViewById(R.id.item);
         setTag();
@@ -69,11 +77,43 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
         intent=getIntent();
         bundle=intent.getExtras();
         REQUEST=bundle.getInt(Constant.REQUEST_KEY);
+        priority=findViewById(R.id.none);
         if(REQUEST==Constant.REQUEST_EDIT)
             setValues();
         else if((REQUEST==Constant.REQUEST_ADD)&&(bundle.getBoolean(Constant.HAS_TAG,false)))
             addTag(bundle.getInt(Constant.TAG_ID), bundle.getString(Constant.TAG));
+        else if((REQUEST==Constant.REQUEST_ADD)&&(bundle.getBoolean(Constant.HAS_PRIORITY,false)))
+            getPriority(bundle.getInt(Constant.Priority));
         createDateBar();
+        priority.setEnabled(false);
+        priority.setBackgroundResource(R.drawable.button);
+    }
+
+    private void getPriority(int anInt) {
+        switch (anInt){
+            case Constant.PRIORITY.HIGH:
+                priority=findViewById(R.id.high);
+                break;
+            case Constant.PRIORITY.MED:
+                priority=findViewById(R.id.medium);
+                break;
+            case Constant.PRIORITY.LOW:
+                priority=findViewById(R.id.low);
+                break;
+            default:
+                priority=findViewById(R.id.none);
+        }
+    }
+
+    private void setPriorityTag() {
+        priority=findViewById(R.id.low);
+        priority.setTag(Constant.PRIORITY.LOW);
+        priority=findViewById(R.id.medium);
+        priority.setTag(Constant.PRIORITY.MED);
+        priority=findViewById(R.id.high);
+        priority.setTag(Constant.PRIORITY.HIGH);
+        priority=findViewById(R.id.none);
+        priority.setTag(Constant.PRIORITY.NONE);
     }
 
     private void setTag() {
@@ -90,20 +130,15 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
         Cursor cursor=database.query(ItemList.TABLE_NAME,null, ItemList.ID+"=?", new String[]{id + ""},null,null,null);
         cursor.moveToNext();
         ListItem item= new ListItem(cursor.getString(cursor.getColumnIndex(Contract.ItemList.ITEM)),
-                cursor.getInt(cursor.getColumnIndex(Contract.ItemList.DEADLINE)),
+                cursor.getLong(cursor.getColumnIndex(Contract.ItemList.DEADLINE)),
+                cursor.getInt(cursor.getColumnIndex(ItemList.PRIORITY)),
                 cursor.getInt(cursor.getColumnIndex(Contract.ItemList.ID)));
         ToDo.setText(item.getItemName());
         Description.setText(cursor.getString(cursor.getColumnIndex(ItemList.DESCRIPTION)));
         TagView.addMultipleTags(this,selectedTags,id,this,this);
-        ParseDate(item.getDeadLineInt());
+        presetDate=item.getDeadLineLong();
+        getPriority(item.getPriority());
     }
-
-    private void ParseDate(Integer deadLine) {
-        day=Integer.parseInt(deadLine.toString().substring(6,8))-Integer.parseInt(Constant.DAYS.get(0));
-        month=Integer.parseInt(deadLine.toString().substring(4,6));
-        day=Integer.parseInt(deadLine.toString().substring(0,4))-Integer.parseInt(Constant.YEARS.get(0));
-    }
-
     private void createDateBar() {
         Day=findViewById(R.id.day);
         Month=findViewById(R.id.month);
@@ -111,32 +146,31 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
         Day.setOnItemSelectedListener(this);
         Month.setOnItemSelectedListener(this);
         Year.setOnItemSelectedListener(this);
-        days= new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,Constant.DAYS);
-        months= new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,Constant.MONTHS);
-        years= new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, Constant.YEARS);
+        days= new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,Constant.IntSet(1,31));
+        months= new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,Constant.setMonth());
+        years= new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, Constant.IntSet(2018,2025));
         days.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         months.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         years.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         Day.setAdapter(days);
         Month.setAdapter(months);
         Year.setAdapter(years);
-        Day.setSelection(day);
-        Month.setSelection(month);
-        Year.setSelection(year);
+        setDate();
     }
 
+    private void setDate() {
+        if(presetDate==null) {
+            presetDate = System.currentTimeMillis();
+        }
+        Date date=new Date(presetDate);
+        setDate=Constant.format.format(date);
+        Day.setSelection(days.getPosition(setDate.substring(0,2)));
+        Month.setSelection(months.getPosition(setDate.substring(3,6)));
+        Year.setSelection(years.getPosition(setDate.substring(7)));
+    }
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        switch (parent.getId()){
-            case R.id.day:
-                day=position;
-                break;
-            case R.id.month:
-                month=position;
-                break;
-            case R.id.year:
-                year=position;
-        }
+        setDate=Day.getSelectedItem().toString()+"/"+Month.getSelectedItem().toString()+"/"+Year.getSelectedItem().toString();
     }
 
     @Override
@@ -149,6 +183,7 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
         inflater.inflate(R.menu.main_menu,menu);
         menu.add(Menu.NONE,Constant.MenuID.SAVE,Menu.NONE,"SAVE");
         MenuItem save=menu.findItem(Constant.MenuID.SAVE);
+        save.setIcon(R.drawable.ic_save_white_48dp);
         save.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }
@@ -157,35 +192,53 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==Constant.MenuID.SAVE)
         {
-            database=openHelper.getWritableDatabase();
-            ContentValues values=new ContentValues();
-            values.put(ItemList.ITEM,ToDo.getText().toString());
-            if(month>9)
-                values.put(ItemList.DEADLINE,Integer.parseInt(Constant.YEARS.get(year)+month+Constant.DAYS.get(day)+""));
-            else
-                values.put(ItemList.DEADLINE,Integer.parseInt(Constant.YEARS.get(year)+"0"+month+Constant.DAYS.get(day)));
-            values.put(ItemList.DESCRIPTION,Description.getText().toString());
-            if(REQUEST==Constant.REQUEST_ADD) {
-                id = (int) database.insert(ItemList.TABLE_NAME, null, values);
-                ModifyTagSet();
-                Bundle bundle=new Bundle();
-                bundle.putInt(Constant.ID_KEY, Integer.parseInt(id+""));
-                bundle.putBoolean(Constant.HAS_TAG, this.bundle.getBoolean(Constant.HAS_TAG,false));
-                intent.putExtras(bundle);
-                setResult(Constant.RSULT_ADD,intent);
+            try {
+                if((Constant.format.format(EpochDate()).equals(Constant.format.format(System.currentTimeMillis())))||(EpochDate()>System.currentTimeMillis()))
+                {
+                    database=openHelper.getWritableDatabase();
+                    ContentValues values=new ContentValues();
+                    values.put(ItemList.ITEM,ToDo.getText().toString());
+                    values.put(ItemList.DEADLINE,EpochDate());
+                    values.put(ItemList.DESCRIPTION,Description.getText().toString());
+                    values.put(ItemList.PRIORITY,(int) priority.getTag());
+                    if(REQUEST==Constant.REQUEST_ADD) {
+                        id = (int) database.insert(ItemList.TABLE_NAME, null, values);
+                        ModifyTagSet();
+                        Bundle bundle=new Bundle();
+                        bundle.putInt(Constant.ID_KEY, Integer.parseInt(id+""));
+                        bundle.putBoolean(Constant.HAS_TAG, this.bundle.getBoolean(Constant.HAS_TAG,false));
+                        bundle.putBoolean(Constant.HAS_PRIORITY,this.bundle.getBoolean(Constant.HAS_PRIORITY,false));
+                        intent.putExtras(bundle);
+                        setResult(Constant.RSULT_ADD,intent);
+                    }
+                    else if(REQUEST==Constant.REQUEST_EDIT){
+                        database.update(ItemList.TABLE_NAME,values, ItemList.ID+"=?", new String[]{id + ""});
+                        ModifyTagSet();
+                        Bundle bundle=new Bundle();
+                        bundle.putInt(Constant.ID_KEY, Integer.parseInt(id+""));
+                        bundle.putBoolean(Constant.EDIT,true);
+                        intent.putExtras(bundle);
+                        setResult(Constant.RSULT_EDIT,intent);
+                    }
+                    finish();
+                }
+                else
+                    Toast.makeText(this,"Invalid Deadline",Toast.LENGTH_SHORT).show();
+                Log.e("System Date",Constant.format.format(System.currentTimeMillis()));
             }
-            else if(REQUEST==Constant.REQUEST_EDIT){
-                database.update(ItemList.TABLE_NAME,values, ItemList.ID+"=?", new String[]{id + ""});
-                ModifyTagSet();
-                Bundle bundle=new Bundle();
-                bundle.putInt(Constant.ID_KEY, Integer.parseInt(id+""));
-                bundle.putBoolean(Constant.EDIT,true);
-                intent.putExtras(bundle);
-                setResult(Constant.RSULT_EDIT,intent);
+            catch (ParseException e) {
+                Log.e("Parse Exception","Date Format Not Parsable");
             }
-            finish();
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private Long EpochDate() throws ParseException {
+        Long EpochDate;
+        Date date=Constant.format.parse(setDate);
+        EpochDate=date.getTime();
+        return  EpochDate;
     }
 
     private void ModifyTagSet() {
@@ -255,7 +308,7 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
     @Override
     public boolean onLongClick(View v) {
         final TextView textView=(TextView)v;
-        final Integer id=(Integer) v.getTag();
+        final Integer id=textView.getId();
         AlertDialog.Builder builder=new AlertDialog.Builder(this,android.R.style.Theme_Material_Dialog_Alert);
         builder.setTitle("Remove Tag");
         builder.setMessage("Do you want to remove the tag?");
@@ -283,5 +336,17 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
         });
         builder.show();
         return true;
+    }
+
+    public void setPriority(View view) {
+        priority.setEnabled(true);
+        priority.setBackgroundResource(R.drawable.selected_button);
+        priority=(Button)view;
+        priority.setBackgroundResource(R.drawable.button);
+        priority.setEnabled(true);
+        if((int)priority.getTag()!=bundle.getInt(Constant.Priority,-1))
+            bundle.remove(Constant.HAS_PRIORITY);
+        else if((int)priority.getTag()==bundle.getInt(Constant.Priority,-1))
+            bundle.putBoolean(Constant.HAS_PRIORITY,true);
     }
 }

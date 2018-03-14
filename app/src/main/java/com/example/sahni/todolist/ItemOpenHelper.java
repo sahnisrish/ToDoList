@@ -26,6 +26,7 @@ public class ItemOpenHelper extends SQLiteOpenHelper {
                 Contract.ItemList.ID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
                 Contract.ItemList.ITEM+" TEXT, "+
                 Contract.ItemList.DESCRIPTION+" TEXT, "+
+                Contract.ItemList.PRIORITY+" INTEGER, "+
                 Contract.ItemList.DEADLINE+" INTEGER)";
         db.execSQL(createItem);
         String createTags="CREATE TABLE "+Contract.TagsList.TABLE_NAME+" ("+
@@ -39,6 +40,12 @@ public class ItemOpenHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY ("+Contract.TagAssignment.ITEM_ID+") REFERENCES "+Contract.ItemList.TABLE_NAME+" ("+Contract.ItemList.ID+") , "+
                 "FOREIGN KEY ("+Contract.TagAssignment.TAG_ID+") REFERENCES "+Contract.TagsList.TABLE_NAME+" ("+Contract.TagsList.ID+") )";
         db.execSQL(createTagAssign);
+        String createComments="CREATE TABLE "+Contract.Comments.TABLE_NAME+" ("+
+                Contract.Comments.ID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
+                Contract.Comments.COMMENT+" TEXT, "+
+                Contract.Comments.ITEM_ID+" INTEGER, "+
+                "FOREIGN KEY ("+Contract.Comments.ITEM_ID+") REFERENCES "+Contract.ItemList.TABLE_NAME+" ("+Contract.ItemList.ID+") ON DELETE CASCADE )";
+        db.execSQL(createComments);
     }
 
     @Override

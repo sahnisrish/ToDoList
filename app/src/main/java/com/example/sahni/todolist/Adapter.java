@@ -76,13 +76,41 @@ public class Adapter extends BaseAdapter {
             view.setTag(holder);
         }
         ViewHolder holder=(ViewHolder)view.getTag();
-        holder.item.setBackgroundResource(R.drawable.list_item);
+        if((list.get(position).getDeadLineLong()<System.currentTimeMillis())&&(!Constant.format.format(list.get((position)).getDeadLineLong()).equals(Constant.format.format(System.currentTimeMillis()))))
+        {
+            holder.item.setBackgroundColor(holder.item.getResources().getColor(R.color.deselectedColor));
+            holder.completed.setBackgroundColor(holder.item.getResources().getColor(R.color.deselectedColor));
+        }
+        else
+        {
+            int colorId;
+            switch (list.get(position).getPriority())
+            {
+                case Constant.PRIORITY.HIGH:
+                    colorId=R.color.priorityHigh;
+                    break;
+                case Constant.PRIORITY.MED:
+                    colorId=R.color.priorityMedium;
+                    break;
+                case Constant.PRIORITY.LOW:
+                    colorId=R.color.priorityLow;
+                    break;
+                default:
+                    colorId=R.color.itemBackground;
+            }
+            holder.item.setBackgroundColor(holder.item.getResources().getColor(colorId));
+            holder.completed.setBackgroundColor(holder.item.getResources().getColor(colorId));
+        }
         holder.item.setTag(list.get(position).getId());
         holder.name.setText(list.get(position).getItemName());
         holder.deadline.setText(list.get(position).getDeadLine());
         holder.completed.setChecked(false);
         holder.completed.setTag(list.get(position).getId());
         TagView.addMultipleTags(context,holder.tagsBar,list.get(position).getId(),tagClickedListener,null);
+        if(list.get(position).getPriority()!= Constant.PRIORITY.NONE) {
+            TagView priority = new TagView(context, list.get(position).getPriority());
+            priority.addTag(holder.tagsBar, tagClickedListener, null);
+        }
         return view;
     }
     class ViewHolder{

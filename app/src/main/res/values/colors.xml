@@ -5,10 +5,12 @@
     <color name="colorPrimaryLight">#ef6794</color>
     <color name="Background">#FFD3E2</color>
     <color name="itemBackground">#FCB3CB</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#FF77A4</color>
     <color name="textColor">#000000</color>
+    <color name="priorityHigh">#B5FFE2</color>
+    <color name="priorityMedium">#FFFAB5</color>
+    <color name="priorityLow">#CFCFF9</color>
     <color name="deselectedColor">#bfbfbf</color>
-    <color name="deselectedColorDark">#7a7a7a</color>
     <color name="textDescriptionColor">#353535</color>
-    <color name="tagBar">#ffffff</color>
+    <color name="tagText">#ffffff</color>
 </resources>

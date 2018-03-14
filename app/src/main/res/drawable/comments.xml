@@ -5,9 +5,9 @@
         android:left="-2dp"
         android:right="-2dp">
         <shape android:shape="rectangle">
-            <solid android:color="@color/Background"/>
+            <solid android:color="@color/tagText"/>
             <stroke android:width="2dp"
-                android:color="@color/colorAccent"/>
+                android:color="@color/colorPrimaryLight"/>
         </shape>
     </item>
 </layer-list>

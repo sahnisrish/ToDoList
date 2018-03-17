@@ -30,7 +30,12 @@ public class ListItem {
         return deadLine;
     }
     public boolean liesAbove(ListItem li) {
-        return li.deadLine >= deadLine;
+        if(priority>li.getPriority())
+            return true;
+        else if(priority==li.getPriority()&&li.getDeadLineLong()>deadLine)
+            return true;
+        else
+            return false;
     }
 
     public int getId() {

@@ -248,7 +248,8 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
         Intent intent=new Intent(this,Receiver.class);
         intent.putExtra(Constant.ID_KEY,id);
         PendingIntent pendingIntent=PendingIntent.getBroadcast(this,Constant.REQUEST_NOTIFY,intent,PendingIntent.FLAG_NO_CREATE);
-        alarm.cancel(pendingIntent);
+        if(pendingIntent!=null)
+            alarm.cancel(pendingIntent);
     }
 
     @Override

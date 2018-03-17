@@ -1,6 +1,8 @@
 package com.example.sahni.todolist;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -60,6 +62,13 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
     EditText tagText;
     ArrayList<Integer> addedTagIds;
     ArrayList<Integer> removedTagIds;
+    //Comments
+    ListView addedComments;
+    ArrayList<Comments> comments;
+    CommentsAdapter adapter;
+    Button addComment;
+    EditText commentText;
+    ArrayList<Integer> deletedComments;
     //Priority
     Button priority;
     //Database
@@ -84,9 +93,44 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
             addTag(bundle.getInt(Constant.TAG_ID), bundle.getString(Constant.TAG));
         else if((REQUEST==Constant.REQUEST_ADD)&&(bundle.getBoolean(Constant.HAS_PRIORITY,false)))
             getPriority(bundle.getInt(Constant.Priority));
+        setComment();
         createDateBar();
         priority.setEnabled(false);
         priority.setBackgroundResource(R.drawable.button);
+    }
+
+    private void setComment() {
+        addedComments = findViewById(R.id.addedComments);
+        addComment=findViewById(R.id.addcomment);
+        deletedComments=new ArrayList<>();
+        comments = new ArrayList<>();
+        if(bundle.getInt(Constant.ID_KEY,-1)>0)
+        {
+            int id=bundle.getInt(Constant.ID_KEY);
+            database=openHelper.getReadableDatabase();
+            Cursor cursor=database.query(Contract.Comments.TABLE_NAME,null,Contract.Comments.ITEM_ID+"=?", new String[]{id + ""},null,null,Contract.Comments.DATE);
+            while (cursor.moveToNext()){
+                Comments comment=new Comments(cursor.getInt(cursor.getColumnIndex(Contract.Comments.ID)),
+                                    cursor.getString(cursor.getColumnIndex(Contract.Comments.COMMENT)),
+                                    cursor.getInt(cursor.getColumnIndex(Contract.Comments.ITEM_ID)),
+                                    cursor.getLong(cursor.getColumnIndex(Contract.Comments.DATE)));
+                comments.add(comment);
+            }
+        }
+        adapter=new CommentsAdapter(this, comments, new CommentsAdapter.onDeleteClick() {
+            @Override
+            public void onClick(View v) {
+                int position=(int)v.getTag();
+                Comments comment=comments.get(position);
+                if((comment.getId()!=Constant.NOT_IN_DB)&&(comment.getItem_id()!=Constant.NOT_IN_DB))
+                    deletedComments.add(comment.getId());
+                comments.remove(position);
+                adapter.notifyDataSetChanged();
+            }
+        });
+        addedComments.setAdapter(adapter);
+        addComment.setOnClickListener(this);
+        commentText=findViewById(R.id.AddComments);
     }
 
     private void getPriority(int anInt) {
@@ -126,6 +170,7 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
     }
     private void setValues() {
         id=bundle.getInt(Constant.ID_KEY);
+        Log.e("ID", "setValues: "+id );
         database=openHelper.getWritableDatabase();
         Cursor cursor=database.query(ItemList.TABLE_NAME,null, ItemList.ID+"=?", new String[]{id + ""},null,null,null);
         cursor.moveToNext();
@@ -190,7 +235,7 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId()==Constant.MenuID.SAVE)
+        if((item.getItemId()==Constant.MenuID.SAVE)&&(!ToDo.getText().toString().equals("")))
         {
             try {
                 if((Constant.format.format(EpochDate()).equals(Constant.format.format(System.currentTimeMillis())))||(EpochDate()>System.currentTimeMillis()))
@@ -203,7 +248,6 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
                     values.put(ItemList.PRIORITY,(int) priority.getTag());
                     if(REQUEST==Constant.REQUEST_ADD) {
                         id = (int) database.insert(ItemList.TABLE_NAME, null, values);
-                        ModifyTagSet();
                         Bundle bundle=new Bundle();
                         bundle.putInt(Constant.ID_KEY, Integer.parseInt(id+""));
                         bundle.putBoolean(Constant.HAS_TAG, this.bundle.getBoolean(Constant.HAS_TAG,false));
@@ -213,13 +257,16 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
                     }
                     else if(REQUEST==Constant.REQUEST_EDIT){
                         database.update(ItemList.TABLE_NAME,values, ItemList.ID+"=?", new String[]{id + ""});
-                        ModifyTagSet();
                         Bundle bundle=new Bundle();
                         bundle.putInt(Constant.ID_KEY, Integer.parseInt(id+""));
                         bundle.putBoolean(Constant.EDIT,true);
                         intent.putExtras(bundle);
                         setResult(Constant.RSULT_EDIT,intent);
+//                        Log.e("INTENT", "onEdit: "+bundle.getBoolean(Constant.EDIT,false));
                     }
+                    createNotification(id);
+                    ModifyTagSet();
+                    PutComments();
                     finish();
                 }
                 else
@@ -231,7 +278,44 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
             }
 
         }
+        else if(item.getItemId()==Constant.MenuID.SAVE)
+            Toast.makeText(this,"EMPTY VALUES NOT ALLOWED!",Toast.LENGTH_SHORT).show();
         return super.onOptionsItemSelected(item);
+    }
+
+    private void createNotification(int id) {
+        AlarmManager alarm= (AlarmManager)getSystemService(ALARM_SERVICE);
+        Intent intent=new Intent(this,Receiver.class);
+        intent.putExtra(Constant.ID_KEY,id);
+        PendingIntent pendingIntent=PendingIntent.getBroadcast(this,Constant.REQUEST_NOTIFY,intent,PendingIntent.FLAG_NO_CREATE);
+        if(pendingIntent==null) {
+            pendingIntent = PendingIntent.getBroadcast(this, Constant.REQUEST_NOTIFY, intent, 0);
+        }
+        else{
+            alarm.cancel(pendingIntent);
+        }
+        try {
+            alarm.set(AlarmManager.RTC, EpochDate(),pendingIntent);
+        } catch (ParseException e) {
+            Log.e("DATE", "createNotification: invalid type" );
+        }
+    }
+
+    private void PutComments() {
+        database=openHelper.getWritableDatabase();
+        for(int i=0;i<comments.size();i++)
+        {
+            if(comments.get(i).getId()==Constant.NOT_IN_DB)
+            {
+                ContentValues values=new ContentValues();
+                values.put(Contract.Comments.COMMENT,comments.get(i).getComment());
+                values.put(Contract.Comments.ITEM_ID,id);
+                values.put(Contract.Comments.DATE,comments.get(i).getDateLong());
+                database.insert(Contract.Comments.TABLE_NAME,null,values);
+            }
+        }
+        for(int i=0;i<deletedComments.size();i++)
+            database.delete(Contract.Comments.TABLE_NAME, Contract.Comments.ID+"=?",new String[]{deletedComments.get(i)+""});
     }
 
     private Long EpochDate() throws ParseException {
@@ -290,10 +374,21 @@ public class AddItem extends AppCompatActivity implements AdapterView.OnItemSele
                     Toast.makeText(this,"Tag already exists",Toast.LENGTH_SHORT).show();
             }
         }
+        else if(v.getId()==R.id.addcomment){
+            if(commentText.getText().toString().equals(""))
+                Toast.makeText(this,"ENTER SOME VALUE",Toast.LENGTH_SHORT).show();
+            else{
+                Comments comment=new Comments(commentText.getText().toString(),System.currentTimeMillis());
+                comments.add(comment);
+                adapter.notifyDataSetChanged();
+                commentText.setText("");
+            }
+        }
         else {
             TextView viewTag=(TextView)v ;
             Toast.makeText(this,viewTag.getText().toString(),Toast.LENGTH_SHORT).show();
         }
+
     }
 
     private void addTag(Integer id,String tag) {

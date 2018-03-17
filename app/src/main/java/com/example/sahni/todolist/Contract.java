@@ -32,6 +32,7 @@ public class Contract {
         public static final String TABLE_NAME="comments";
         public static final String ID="id";
         public static final String COMMENT="comment";
+        public static final String DATE="date";
         public static final String ITEM_ID="item_id";
     }
 }

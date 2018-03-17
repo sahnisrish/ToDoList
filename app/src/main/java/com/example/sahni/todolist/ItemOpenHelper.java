@@ -43,6 +43,7 @@ public class ItemOpenHelper extends SQLiteOpenHelper {
         String createComments="CREATE TABLE "+Contract.Comments.TABLE_NAME+" ("+
                 Contract.Comments.ID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
                 Contract.Comments.COMMENT+" TEXT, "+
+                Contract.Comments.DATE+" INTEGER, "+
                 Contract.Comments.ITEM_ID+" INTEGER, "+
                 "FOREIGN KEY ("+Contract.Comments.ITEM_ID+") REFERENCES "+Contract.ItemList.TABLE_NAME+" ("+Contract.ItemList.ID+") ON DELETE CASCADE )";
         db.execSQL(createComments);

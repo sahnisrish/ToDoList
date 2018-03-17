@@ -14,19 +14,26 @@ import java.util.TimeZone;
  */
 
 public class Constant {
+    public static final SimpleDateFormat format=new SimpleDateFormat("dd/MMM/yyyy");
+    public static final int NOT_IN_DB = -1;
     public static final int REQUEST_ADD=1;
     public static final int RSULT_ADD=1;
     public static final int REQUEST_EDIT=2;
     public static final int RSULT_EDIT=2;
+    public static final int REQUEST_NOTIFY=3;
+    public static final int REQUEST_VIEW = 4;
+    public static final int NOTIFICATION_ID = 1;
     public static final String ID_KEY="id";
     public static final String REQUEST_KEY="request";
     public static final String EDIT="edit";
     public static final String  TAG_ID="tag_id";
     public static final String TAG="tag";
     public static final String HAS_TAG="hasTag";
-    public static final SimpleDateFormat format=new SimpleDateFormat("dd/MMM/yyyy");
     public static final java.lang.String HAS_PRIORITY = "hasPriority";
-    public static java.lang.String Priority="priority";
+    public static final java.lang.String Priority="priority";
+    public static final String CHANNEL_ID = "channel";
+    public static final String FROM_NOTIFICATION = "notification";
+
 
     static class MenuID {
         public static final int ADD=1;

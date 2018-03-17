@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,14 +18,14 @@ import java.util.ArrayList;
 public class CommentsAdapter extends BaseAdapter {
     ArrayList<Comments> comments;
     Context context;
-    onLongClick longClick;
-    CommentsAdapter(Context context,ArrayList<Comments> comments,onLongClick longClick)
+    onDeleteClick deleteClick;
+    CommentsAdapter(Context context,ArrayList<Comments> comments,onDeleteClick deleteClick)
     {
         this.comments=comments;
         this.context=context;
-        this.longClick=longClick;
+        this.deleteClick=deleteClick;
     }
-    interface onLongClick extends View.OnLongClickListener{
+    interface onDeleteClick extends View.OnClickListener{
 
     }
     @Override
@@ -48,19 +49,34 @@ public class CommentsAdapter extends BaseAdapter {
         if(convertView==null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.comment_item, parent, false);
-            TextView comment=view.findViewById(R.id.comment);
-            view.setTag(comment);
+            Tag tag=new Tag();
+            tag.comment=view.findViewById(R.id.comment);
+            tag.date=view.findViewById(R.id.date);
+            tag.delete=view.findViewById(R.id.delete);
+            view.setTag(tag);
         }
-        final TextView comment= (TextView) view.getTag();
-        comment.setTag(comments.get(position).getId());
-        comment.setText(comments.get(position).getComment());
-        comment.setOnClickListener(new View.OnClickListener() {
+        final Tag tag= (Tag) view.getTag();
+        tag.comment.setTag(comments.get(position).getId());
+        tag.comment.setText(comments.get(position).getComment());
+        tag.date.setText(comments.get(position).getDate());
+        tag.comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context,comment.getText(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,tag.comment.getText(),Toast.LENGTH_SHORT).show();
             }
         });
-        comment.setOnLongClickListener(longClick);
+        if(deleteClick!=null) {
+            tag.delete.setVisibility(View.VISIBLE);
+            tag.delete.setTag(position);
+            tag.delete.setOnClickListener(deleteClick);
+        }
+        else
+            tag.delete.setVisibility(View.GONE);
         return view;
+    }
+    class Tag{
+        TextView comment;
+        TextView date;
+        Button delete;
     }
 }

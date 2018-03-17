@@ -70,7 +70,6 @@ public class TagView extends android.support.v7.widget.AppCompatTextView {
     }
 
     public static void addMultipleTags(Context context, LinearLayout layout, int id, View.OnClickListener onClick, View.OnLongClickListener onLongClick) {
-        layout.removeAllViews();
         ItemOpenHelper openHelper = ItemOpenHelper.getInstance(context);
         SQLiteDatabase database = openHelper.getReadableDatabase();
         Cursor cursor = database.query(Contract.TagAssignment.TABLE_NAME, null, Contract.TagAssignment.ITEM_ID + "=?", new String[]{id + ""}, null, null, null);

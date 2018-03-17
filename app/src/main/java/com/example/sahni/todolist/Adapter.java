@@ -73,6 +73,7 @@ public class Adapter extends BaseAdapter {
             holder.completed.setOnCheckedChangeListener(checkedListener);
             holder.item.setOnClickListener(itemClickedListener);
             holder.item.setOnLongClickListener(itemLongClickedListener);
+            holder.item.setTag(list.get(position).getId());
             view.setTag(holder);
         }
         ViewHolder holder=(ViewHolder)view.getTag();
@@ -106,11 +107,12 @@ public class Adapter extends BaseAdapter {
         holder.deadline.setText(list.get(position).getDeadLine());
         holder.completed.setChecked(false);
         holder.completed.setTag(list.get(position).getId());
-        TagView.addMultipleTags(context,holder.tagsBar,list.get(position).getId(),tagClickedListener,null);
+        holder.tagsBar.removeAllViews();
         if(list.get(position).getPriority()!= Constant.PRIORITY.NONE) {
             TagView priority = new TagView(context, list.get(position).getPriority());
             priority.addTag(holder.tagsBar, tagClickedListener, null);
         }
+        TagView.addMultipleTags(context,holder.tagsBar,list.get(position).getId(),tagClickedListener,null);
         return view;
     }
     class ViewHolder{

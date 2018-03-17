@@ -1,6 +1,8 @@
 package com.example.sahni.todolist;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -207,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
             bundle=data.getExtras();
             int id=bundle.getInt(Constant.ID_KEY,-1);
             if(bundle.getBoolean(Constant.EDIT)) {
+                Log.e("INTENT", "onActivityResult: "+Constant.EDIT);
                 database = openHelper.getReadableDatabase();
                 String[] args = {id + ""};
                 Cursor cursor = database.query(Contract.ItemList.TABLE_NAME, null, Contract.ItemList.ID + " =?", args, null, null, null);
@@ -237,7 +240,17 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
         if(hasTag)
             tagDetails.setText(list.size()+" items opened");
         adapter.notifyDataSetChanged();
+        CancelNotification(id);
     }
+
+    private void CancelNotification(int id) {
+        AlarmManager alarm= (AlarmManager)getSystemService(ALARM_SERVICE);
+        Intent intent=new Intent(this,Receiver.class);
+        intent.putExtra(Constant.ID_KEY,id);
+        PendingIntent pendingIntent=PendingIntent.getBroadcast(this,Constant.REQUEST_NOTIFY,intent,PendingIntent.FLAG_NO_CREATE);
+        alarm.cancel(pendingIntent);
+    }
+
     @Override
     public void onClick(View v) {
         if(v instanceof TextView)
@@ -271,7 +284,9 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
     @Override
     public boolean onLongClick(View v) {
         Intent intent = new Intent(this, AddItem.class);
+        bundle=new Bundle();
         bundle.putInt(Constant.REQUEST_KEY,Constant.REQUEST_EDIT);
+        bundle.putInt(Constant.ID_KEY,(int)v.getTag());
         intent.putExtras(bundle);
         startActivityForResult(intent, Constant.REQUEST_EDIT);
         return true;

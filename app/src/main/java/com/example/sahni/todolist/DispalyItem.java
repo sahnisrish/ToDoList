@@ -5,11 +5,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 public class DispalyItem extends AppCompatActivity {
     Bundle bundle;
@@ -17,18 +21,22 @@ public class DispalyItem extends AppCompatActivity {
     ListItem item;
     Intent intent;
     ItemOpenHelper openHelper=ItemOpenHelper.getInstance(this);
+    ListView Comments;
+    ArrayList<Comments> comments;
+    CommentsAdapter adapter;
+    SQLiteDatabase database;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dispaly_item);
         intent=getIntent();
         bundle=intent.getExtras();
-        id=bundle.getInt(Constant.ID_KEY);
         setData();
     }
 
     private void setData() {
-        SQLiteDatabase database=openHelper.getReadableDatabase();
+        id=bundle.getInt(Constant.ID_KEY);
+        database=openHelper.getReadableDatabase();
         Cursor cursor=database.query(Contract.ItemList.TABLE_NAME,null,Contract.ItemList.ID+"=?", new String[]{id + ""},null,null,null);
         cursor.moveToNext();
         item=new ListItem(cursor.getString(cursor.getColumnIndex(Contract.ItemList.ITEM)),
@@ -43,8 +51,32 @@ public class DispalyItem extends AppCompatActivity {
         Description.setText(cursor.getString(cursor.getColumnIndex(Contract.ItemList.DESCRIPTION)));
         Date.setText(item.getDeadLine());
         LinearLayout tagsBar=findViewById(R.id.tags);
+        tagsBar.removeAllViews();
+        if(item.getPriority()!=Constant.PRIORITY.NONE)
+        {
+            TagView priority = new TagView(this, item.getPriority());
+            priority.addTag(tagsBar, null, null);
+        }
         TagView.addMultipleTags(this,tagsBar,id,null,null);
+        setComments();
     }
+
+    private void setComments() {
+        Comments=findViewById(R.id.comments);
+        comments=new ArrayList<>();
+        database=openHelper.getReadableDatabase();
+        Cursor cursor=database.query(Contract.Comments.TABLE_NAME,null,Contract.Comments.ITEM_ID+"=?", new String[]{id + ""},null,null,Contract.Comments.DATE);
+        while (cursor.moveToNext()){
+            Comments comment=new Comments(cursor.getInt(cursor.getColumnIndex(Contract.Comments.ID)),
+                    cursor.getString(cursor.getColumnIndex(Contract.Comments.COMMENT)),
+                    cursor.getInt(cursor.getColumnIndex(Contract.Comments.ITEM_ID)),
+                    cursor.getLong(cursor.getColumnIndex(Contract.Comments.DATE)));
+            comments.add(comment);
+        }
+        adapter=new CommentsAdapter(this,comments,null);
+        Comments.setAdapter(adapter);
+    }
+
     public boolean onCreateOptionsMenu(Menu menu)
     {
         MenuInflater inflater=getMenuInflater();
@@ -73,6 +105,7 @@ public class DispalyItem extends AppCompatActivity {
         if(resultCode==Constant.RSULT_EDIT)
         {
             setData();
+            bundle=data.getExtras();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -82,7 +115,9 @@ public class DispalyItem extends AppCompatActivity {
         if(bundle.getBoolean(Constant.EDIT,false)) {
             intent.putExtras(bundle);
             setResult(Constant.RSULT_EDIT, intent);
+//            Log.e("INTENT", "onBackPressed: "+bundle.getBoolean(Constant.EDIT,false));
         }
+        finish();
         super.onBackPressed();
     }
 }

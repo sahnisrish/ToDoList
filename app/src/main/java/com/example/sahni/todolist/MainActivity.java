@@ -14,6 +14,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -33,9 +36,9 @@ import android.widget.Toolbar;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements Adapter.CheckedListener, Adapter.ItemClickedListener, Adapter.ItemLongClickedListener{
+public class MainActivity extends AppCompatActivity implements ListAdapterRecycle.TagClickedListener, ListAdapterRecycle.CheckedListener, ListAdapterRecycle.ItemClickedListener, ListAdapterRecycle.ItemLongClickedListener {
     //Views
-    ListView listView;
+    RecyclerView RecyclerListView;
     android.support.v7.widget.Toolbar toolbar;
     LinearLayout titleTag;
     AppBarLayout appBar;
@@ -44,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
     Menu menu;
     //List
     ArrayList<ListItem> list;
-    Adapter adapter;
+    ListAdapterRecycle adapter;
     //Database
     ItemOpenHelper openHelper;
     SQLiteDatabase database;
@@ -63,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PerformAdd();
+                CallAdd();
             }
         });
         appBar=findViewById(R.id.appBar);
@@ -80,14 +83,17 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
 
         });
         openHelper=ItemOpenHelper.getInstance(this);
-        listView=findViewById(R.id.ListView);
         titleTag=findViewById(R.id.titleTag);
+
+        RecyclerListView=findViewById(R.id.List);
         list=fetchData();
-        adapter=new Adapter(this,list,this,this,this,this);
-        listView.setAdapter(adapter);
+        adapter=new ListAdapterRecycle(this, list, this, this, this, this);
+        RecyclerListView.setAdapter(adapter);
+        RecyclerListView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
+        RecyclerListView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
     }
 
-    private void PerformAdd() {
+    private void CallAdd() {
         Intent intent = new Intent(MainActivity.this, AddItem.class);
         bundle=new Bundle();
         bundle.putInt(Constant.REQUEST_KEY,Constant.REQUEST_ADD);
@@ -121,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==Constant.MenuID.ADD)
-            PerformAdd();
+            CallAdd();
         return super.onOptionsItemSelected(item);
     }
 
@@ -175,13 +181,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
     }
 
     @Override
-    public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked) {
-        int id=(int)buttonView.getTag();
-        if(isChecked){
-            deleteItem(id);
-        }
-    }
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if((resultCode==Constant.RSULT_ADD)&&(requestCode==Constant.REQUEST_ADD)){
@@ -201,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
                     if (!list.get(pos).liesAbove(listItem))
                         break;
                 list.add(pos, listItem);
+                adapter.notifyItemInserted(pos);
                 if(hasTag)
                     tagDetails.setText(list.size()+" items opened");
             }
@@ -224,23 +224,10 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
                         break;
                 list.remove(pos);
                 list.add(pos, listItem);
+                adapter.notifyItemChanged(pos);
             }
         }
         DeleteExtraTags();
-        adapter.notifyDataSetChanged();
-    }
-
-    private void deleteItem(int id) {
-        database=openHelper.getWritableDatabase();
-        database.delete(Contract.TagAssignment.TABLE_NAME,Contract.TagAssignment.ITEM_ID+" = ?", new String[]{id + ""});
-        DeleteExtraTags();
-        database.delete(Contract.ItemList.TABLE_NAME,Contract.ItemList.ID+"=?", new String[]{id + ""});
-        list.clear();
-        list.addAll(fetchData());
-        if(hasTag)
-            tagDetails.setText(list.size()+" items opened");
-        adapter.notifyDataSetChanged();
-        CancelNotification(id);
     }
 
     private void CancelNotification(int id) {
@@ -254,8 +241,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
 
     @Override
     public void onClick(View v) {
-        if(v instanceof TextView)
-        {
             tag=new TagView(this,(TagView) v);
             titleTag.removeAllViews();
             tagDetails=new TextView(this);
@@ -270,27 +255,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
             tagDetails.setText(list.size()+" items opened");
             titleTag.addView(tagDetails);
             adapter.notifyDataSetChanged();
-        }
-        else if(v instanceof LinearLayout)
-        {
-            Intent intent = new Intent(this, DispalyItem.class);
-            bundle = new Bundle();
-            bundle.putInt(Constant.ID_KEY, (Integer) v.getTag());
-            bundle.putInt(Constant.REQUEST_KEY, Constant.REQUEST_EDIT);
-            intent.putExtras(bundle);
-            startActivityForResult(intent, Constant.REQUEST_EDIT);
-        }
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        Intent intent = new Intent(this, AddItem.class);
-        bundle=new Bundle();
-        bundle.putInt(Constant.REQUEST_KEY,Constant.REQUEST_EDIT);
-        bundle.putInt(Constant.ID_KEY,(int)v.getTag());
-        intent.putExtras(bundle);
-        startActivityForResult(intent, Constant.REQUEST_EDIT);
-        return true;
     }
 
     @Override
@@ -311,5 +275,42 @@ public class MainActivity extends AppCompatActivity implements Adapter.CheckedLi
     protected void onStop() {
         DeleteExtraTags();
         super.onStop();
+    }
+
+
+    @Override
+    public void onCheckChanged(int position,boolean isChecked) {
+        if(isChecked){
+            int id=list.get(position).getId();
+            database=openHelper.getWritableDatabase();
+            database.delete(Contract.TagAssignment.TABLE_NAME,Contract.TagAssignment.ITEM_ID+" = ?", new String[]{id + ""});
+            DeleteExtraTags();
+            database.delete(Contract.ItemList.TABLE_NAME,Contract.ItemList.ID+"=?", new String[]{id + ""});
+            list.remove(position);
+            if(hasTag)
+                tagDetails.setText(list.size()+" items opened");
+            adapter.notifyItemRemoved(position);
+            CancelNotification(id);
+        }
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        Intent intent = new Intent(this, DispalyItem.class);
+        bundle = new Bundle();
+        bundle.putInt(Constant.ID_KEY, list.get(position).getId());
+        bundle.putInt(Constant.REQUEST_KEY, Constant.REQUEST_EDIT);
+        intent.putExtras(bundle);
+        startActivityForResult(intent, Constant.REQUEST_EDIT);
+    }
+
+    @Override
+    public void onItemLongClick(int position) {
+        Intent intent = new Intent(this, AddItem.class);
+        bundle=new Bundle();
+        bundle.putInt(Constant.REQUEST_KEY,Constant.REQUEST_EDIT);
+        bundle.putInt(Constant.ID_KEY,list.get(position).getId());
+        intent.putExtras(bundle);
+        startActivityForResult(intent, Constant.REQUEST_EDIT);
     }
 }

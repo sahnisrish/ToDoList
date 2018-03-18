@@ -51,6 +51,6 @@ public class Receiver extends BroadcastReceiver {
         Notification notification=builder.build();
         manager.notify(Constant.NOTIFICATION_ID,notification);
 
-        Log.e("ID", "onReceive: "+id);
+        Log.e("ID", "onReceive: "+id+" "+title);
     }
 }

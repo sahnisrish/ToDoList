@@ -22,7 +22,6 @@ public class Constant {
     public static final int RSULT_EDIT=2;
     public static final int REQUEST_NOTIFY=3;
     public static final int REQUEST_VIEW = 4;
-    public static final int NOTIFICATION_ID = 1;
     public static final String ID_KEY="id";
     public static final String REQUEST_KEY="request";
     public static final String EDIT="edit";

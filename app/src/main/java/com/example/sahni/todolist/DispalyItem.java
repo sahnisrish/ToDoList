@@ -112,7 +112,12 @@ public class DispalyItem extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(bundle.getBoolean(Constant.EDIT,false)) {
+        if(bundle.getBoolean(Constant.FROM_NOTIFICATION,false))
+        {
+            Intent intent=new Intent(this,MainActivity.class);
+            startActivity(intent);
+        }
+        else if(bundle.getBoolean(Constant.EDIT,false)) {
             intent.putExtras(bundle);
             setResult(Constant.RSULT_EDIT, intent);
 //            Log.e("INTENT", "onBackPressed: "+bundle.getBoolean(Constant.EDIT,false));

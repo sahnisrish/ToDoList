@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -32,9 +33,13 @@ public class Receiver extends BroadcastReceiver {
             title=cursor.getString(cursor.getColumnIndex(Contract.ItemList.ITEM));
         database.close();
 
-        Intent notificationIntent=new Intent(context,MainActivity.class);
+        Intent notificationIntent=new Intent(context,DispalyItem.class);
+        Bundle bundle=new Bundle();
+        bundle.putInt(Constant.ID_KEY,id);
+        bundle.putBoolean(Constant.FROM_NOTIFICATION,true);
+        notificationIntent.putExtras(bundle);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent=PendingIntent.getActivity(context,Constant.REQUEST_VIEW,notificationIntent,0);
+        PendingIntent pendingIntent=PendingIntent.getActivity(context,Constant.REQUEST_VIEW,notificationIntent,PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -47,10 +52,11 @@ public class Receiver extends BroadcastReceiver {
         builder.setContentText(title+" is pending.");
         builder.setSmallIcon(R.drawable.notification_icon);
         builder.setContentIntent(pendingIntent);
+        builder.setAutoCancel(true);
 
         Notification notification=builder.build();
-        manager.notify(Constant.NOTIFICATION_ID,notification);
+        manager.notify(id,notification);
 
-        Log.e("ID", "onReceive: "+id+" "+title);
+        Log.e("ID", "onReceive: "+notificationIntent.getExtras().getInt(Constant.ID_KEY)+" "+title);
     }
 }

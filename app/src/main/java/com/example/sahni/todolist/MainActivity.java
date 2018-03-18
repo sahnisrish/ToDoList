@@ -2,6 +2,7 @@ package com.example.sahni.todolist;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -140,10 +141,7 @@ public class MainActivity extends AppCompatActivity implements ListAdapterRecycl
                     " WHERE "+Contract.ItemList.TABLE_NAME+"."+Contract.ItemList.ID+"="+Contract.TagAssignment.TABLE_NAME+"."+Contract.TagAssignment.ITEM_ID+
                     " AND "+Contract.TagAssignment.TABLE_NAME+"."+Contract.TagAssignment.TAG_ID+"="+tagId;
             Cursor cursor1=database.rawQuery(Query,null);
-            if(cursor1.moveToNext()){
-
-            }
-            else
+            if(!cursor1.moveToNext())
                 database.delete(Contract.TagsList.TABLE_NAME, Contract.TagsList.ID+"=?", new String[]{tagId + ""});
         }
     }
@@ -237,6 +235,8 @@ public class MainActivity extends AppCompatActivity implements ListAdapterRecycl
         PendingIntent pendingIntent=PendingIntent.getBroadcast(this,Constant.REQUEST_NOTIFY,intent,PendingIntent.FLAG_NO_CREATE);
         if(pendingIntent!=null)
             alarm.cancel(pendingIntent);
+        NotificationManager notificationManager=(NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.cancel(id);
     }
 
     @Override

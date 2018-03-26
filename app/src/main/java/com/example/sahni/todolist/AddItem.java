@@ -82,7 +82,8 @@ public class AddItem extends AppCompatActivity implements AddFragment.AddCallBac
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        finish();
+                        Log.e("ADD", "onClick: CLOSING" );
+                        AddItem.super.onBackPressed();
                     }
                 })
                 .show();

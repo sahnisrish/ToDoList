@@ -152,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Add,
                 @Override
                 public void onClick(View v) {
                     addFragment.save();
+                    fragment.result(Constant.REQUEST_EDIT,Constant.RESULT_EDIT,new Intent().putExtras(bundle));
                 }
             });
         }

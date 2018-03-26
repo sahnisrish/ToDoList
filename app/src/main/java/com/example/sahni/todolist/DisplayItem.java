@@ -57,8 +57,16 @@ public class DisplayItem extends AppCompatActivity{
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         fragment.result(requestCode,resultCode,data);
-        bundle=data.getExtras();
+        if(data!=null)
+            bundle=data.getExtras();
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onResume() {
+        Log.e("DISPLAY", "onResume: RESUME" );
+        super.onResume();
+
     }
 
     @Override

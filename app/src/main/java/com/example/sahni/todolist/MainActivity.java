@@ -69,14 +69,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Add,
                 }
 
             });
-            if((savedInstanceState!=null)&&(savedInstanceState.getBoolean(Constant.HAS_TAG)))
-            {
-                fragment.hasTag=true;
-                fragment.tag=new TagView(this,
-                        savedInstanceState.getString(Constant.TAG),
-                        savedInstanceState.getInt(Constant.TAG_ID));
-                fragment.onClick(fragment.tag);
-            }
         }
         else if(savedInstanceState!=null)
         {
@@ -98,17 +90,25 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Add,
             else{
                 displayPane.setVisibility(View.GONE);
             }
-            if(savedInstanceState.getBoolean(Constant.HAS_TAG,false))
-            {
-                fragment.hasTag=true;
-                fragment.tag=new TagView(this,
-                        savedInstanceState.getString(Constant.TAG),
-                        savedInstanceState.getInt(Constant.TAG_ID));
-                fragment.onClick(fragment.tag);
-            }
         }
         else{
             displayPane.setVisibility(View.GONE);
+        }
+        if((savedInstanceState!=null)&&(savedInstanceState.getBoolean(Constant.HAS_TAG)))
+        {
+            fragment.hasTag=true;
+            if(!savedInstanceState.getBoolean(Constant.HAS_PRIORITY)) {
+                Log.e("TAG", "onCreate NON-PRIORITY" );
+                fragment.tag = new TagView(this,
+                        savedInstanceState.getString(Constant.TAG),
+                        savedInstanceState.getInt(Constant.TAG_ID));
+            }
+            else {
+                Log.e("TAG", "onCreate PRIORITY" );
+                fragment.tag = new TagView(this,
+                        savedInstanceState.getInt(Constant.TAG_ID));
+            }
+            fragment.onClick(fragment.tag);
         }
     }
 
@@ -119,6 +119,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Add,
             outState.putInt(Constant.TAG_ID,fragment.tag.getId());
             outState.putString(Constant.TAG,fragment.tag.getTitle());
             outState.putBoolean(Constant.HAS_TAG,true);
+            if(fragment.tag.isPriority()) {
+                Log.e("TAG", "onSet PRIORITY" );
+                outState.putBoolean(Constant.HAS_PRIORITY, true);
+            }
+            else
+                outState.putBoolean(Constant.HAS_PRIORITY,false);
         }
         else {
             outState.putBoolean(Constant.HAS_TAG,false);

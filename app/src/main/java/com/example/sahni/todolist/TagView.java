@@ -18,7 +18,7 @@ public class TagView extends android.support.v7.widget.AppCompatTextView {
     private int id;
     private String title;
     Context context;
-    boolean isPriority;
+    private boolean isPriority;
     public TagView(Context context, String title, int id) {
         super(context);
         this.context = context;

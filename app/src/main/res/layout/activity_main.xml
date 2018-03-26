@@ -25,14 +25,12 @@
                 android:theme="@style/AppTheme.popupOverlay"/>
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
-    <include layout="@layout/content_main"/>
-    <LinearLayout
-        android:id="@+id/titleTag"
+    <fragment
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:orientation="horizontal"
-        android:layout_gravity="bottom" />
+        android:layout_height="match_parent"
+        android:id="@+id/main_fragment"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:name="com.example.sahni.todolist.MainFragment"/>
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:id="@+id/add"
@@ -42,5 +40,11 @@
         android:layout_margin="16dp"
         app:srcCompat="@drawable/ic_add_black_24dp"
         />
-
+    <LinearLayout
+        android:id="@+id/titleTag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:orientation="horizontal"
+        android:layout_gravity="bottom" />
 </android.support.design.widget.CoordinatorLayout>

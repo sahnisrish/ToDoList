@@ -12,7 +12,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import static com.example.sahni.todolist.Constant.*;
@@ -33,12 +32,12 @@ public class Receiver extends BroadcastReceiver {
             title=cursor.getString(cursor.getColumnIndex(Contract.ItemList.ITEM));
         database.close();
 
-        Intent notificationIntent=new Intent(context,DispalyItem.class);
+        Intent notificationIntent=new Intent(context,DisplayItem.class);
         Bundle bundle=new Bundle();
         bundle.putInt(Constant.ID_KEY,id);
         bundle.putBoolean(Constant.FROM_NOTIFICATION,true);
         notificationIntent.putExtras(bundle);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent pendingIntent=PendingIntent.getActivity(context,Constant.REQUEST_VIEW,notificationIntent,PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

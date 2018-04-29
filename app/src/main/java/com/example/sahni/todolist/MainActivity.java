@@ -20,14 +20,17 @@ import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MainFragment.Add, MainFragment.Display,MainFragment.Edit,MainFragment.TagDescription,AddFragment.AddCallBack,AddFragment.EditCallBack,AddFragment.FinishCallBack {
+public class MainActivity extends AppCompatActivity implements MainFragment.Add, MainFragment.Display,MainFragment.Edit,MainFragment.TagDescription,AddFragment.AddCallBack,AddFragment.EditCallBack,AddFragment.FinishCallBack,MainFragment.SetCompleted {
     android.support.v7.widget.Toolbar toolbar;
     AppBarLayout appBar;
     LinearLayout titleTag;
+    TextView completedTab;
+    TextView delete;
     Menu menu;
     Bundle bundle;
     MainFragment fragment;
@@ -42,8 +45,17 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Add,
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
-        fragment= (MainFragment) getSupportFragmentManager().findFragmentById(R.id.main_fragment);
+        fragment= new MainFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.main_fragment,fragment).commit();
         titleTag=findViewById(R.id.titleTag);
+        completedTab=findViewById(R.id.completedTab);
+        delete=findViewById(R.id.delete);
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fragment.deleteCompleted();
+            }
+        });
         final FloatingActionButton add=findViewById(R.id.add);
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,7 +153,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Add,
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    CallEdit(bundle);
+                    if(displayFragment.status==Constant.NOT_COMPLETED)
+                        CallEdit(bundle);
+                    else
+                        Toast.makeText(MainActivity.this,"Cannot edit completed task",Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -152,7 +167,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Add,
                 @Override
                 public void onClick(View v) {
                     addFragment.save();
-                    fragment.result(Constant.REQUEST_EDIT,Constant.RESULT_EDIT,new Intent().putExtras(bundle));
                 }
             });
         }
@@ -331,6 +345,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Add,
     public void add(Bundle bundle) {
         bundle.putInt(Constant.REQUEST_KEY,Constant.REQUEST_DISPLAY);
         this.bundle=bundle;
+        fragment.result(Constant.REQUEST_ADD,Constant.RESULT_ADD,new Intent().putExtras(bundle));
         getSupportFragmentManager().beginTransaction().remove(addFragment).commit();
         AddDisplayFragment();
     }
@@ -339,6 +354,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Add,
     public void edit(Bundle bundle) {
         bundle.putInt(Constant.REQUEST_KEY,Constant.REQUEST_DISPLAY);
         this.bundle=bundle;
+        fragment.result(Constant.REQUEST_EDIT,Constant.RESULT_EDIT,new Intent().putExtras(bundle));
         getSupportFragmentManager().beginTransaction().remove(addFragment).commit();
         AddDisplayFragment();
     }
@@ -346,5 +362,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Add,
     @Override
     public void finishActivity() {
         addFragment=null;
+    }
+
+    @Override
+    public void completed(int n) {
+        completedTab.setText(n+" items Completed");
     }
 }

@@ -1,6 +1,7 @@
 package com.example.sahni.todolist;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -58,6 +60,7 @@ public class ListAdapterRecycle extends RecyclerView.Adapter<ListAdapterRecycle.
         holder.name.setText(list.get(position).getItemName());
         holder.deadline.setText(list.get(position).getDeadLine());
         holder.completed.setChecked(false);
+        holder.completed.setEnabled(true);
         holder.completed.setTag(list.get(position).getId());
         holder.tagsBar.removeAllViews();
 
@@ -81,7 +84,7 @@ public class ListAdapterRecycle extends RecyclerView.Adapter<ListAdapterRecycle.
             }
         });
 
-        if((list.get(position).getDeadLineLong()<System.currentTimeMillis())&&(!Constant.format.format(list.get((position)).getDeadLineLong()).equals(Constant.format.format(System.currentTimeMillis()))))
+        if(list.get(position).completeStatus==Constant.COMPLETED)
             holder.item.setBackgroundColor(holder.item.getResources().getColor(R.color.deselectedColor));
         else
         {
@@ -102,12 +105,35 @@ public class ListAdapterRecycle extends RecyclerView.Adapter<ListAdapterRecycle.
             }
             holder.item.setBackgroundColor(holder.item.getResources().getColor(colorId));
         }
-
+        if(((list.get(position).getDeadLineLong()<System.currentTimeMillis())&&(!Constant.format.format(list.get((position)).getDeadLineLong()).equals(Constant.format.format(System.currentTimeMillis()))))&&(list.get(position).completeStatus==Constant.NOT_COMPLETED)){
+            holder.name.setTextColor(holder.name.getResources().getColor(R.color.colorPrimaryDark));
+            holder.deadline.setTextColor(holder.deadline.getResources().getColor(R.color.colorPrimaryDark));
+            TextView textView=holder.item.findViewById(R.id.dtitlle);
+            holder.item.setBackgroundColor(holder.item.getResources().getColor(R.color.deselectedColor));
+            textView.setTextColor(holder.deadline.getResources().getColor(R.color.colorPrimaryDark));
+        }
         if(list.get(position).getPriority()!= Constant.PRIORITY.NONE) {
             TagView priority = new TagView(context, list.get(position).getPriority());
             priority.addTag(holder.tagsBar, tagClickedListener, null);
         }
         TagView.addMultipleTags(context,holder.tagsBar,list.get(position).getId(),tagClickedListener,null);
+
+        if(list.get(position).completeStatus==Constant.COMPLETED){
+            holder.name.setPaintFlags(holder.name.getPaintFlags()| Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.completed.setOnCheckedChangeListener(null);
+            holder.item.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(context,"Cannot edit completed task",Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
+            holder.completed.setChecked(true);
+            holder.completed.setEnabled(false);
+        }
+        else {
+            holder.name.setPaintFlags(holder.name.getPaintFlags()& (~Paint.STRIKE_THRU_TEXT_FLAG));
+        }
     }
 
     @Override

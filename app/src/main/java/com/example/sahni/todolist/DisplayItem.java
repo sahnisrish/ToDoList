@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -46,10 +47,15 @@ public class DisplayItem extends AppCompatActivity{
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==Constant.MenuID.EDIT)
         {
-            Intent intent = new Intent(this, AddItem.class);
-            bundle.putInt(Constant.REQUEST_KEY,Constant.REQUEST_EDIT);
-            intent.putExtras(bundle);
-            startActivityForResult(intent, Constant.REQUEST_EDIT);
+            if(fragment.status==Constant.NOT_COMPLETED) {
+                Intent intent = new Intent(this, AddItem.class);
+                bundle.putInt(Constant.REQUEST_KEY, Constant.REQUEST_EDIT);
+                intent.putExtras(bundle);
+                startActivityForResult(intent, Constant.REQUEST_EDIT);
+            }
+            else {
+                Toast.makeText(this,"Cannot edit completed task",Toast.LENGTH_SHORT).show();
+            }
         }
         return super.onOptionsItemSelected(item);
     }

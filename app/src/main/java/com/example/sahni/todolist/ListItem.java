@@ -13,13 +13,14 @@ public class ListItem {
     private Long deadLine;
     private int priority;
     int id;
+    int completeStatus;
 
-    ListItem(String itemName, Long deadLine, int priority, int id) {
+    ListItem(String itemName, Long deadLine, int priority, int id,int completeStatus) {
         this.itemName = itemName;
         this.deadLine = deadLine;
         this.id = id;
         this.priority=priority;
-
+        this.completeStatus=completeStatus;
     }
 
     public String getDeadLine() {

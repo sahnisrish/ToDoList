@@ -27,7 +27,8 @@ public class ItemOpenHelper extends SQLiteOpenHelper {
                 Contract.ItemList.ITEM+" TEXT, "+
                 Contract.ItemList.DESCRIPTION+" TEXT, "+
                 Contract.ItemList.PRIORITY+" INTEGER, "+
-                Contract.ItemList.DEADLINE+" INTEGER)";
+                Contract.ItemList.DEADLINE+" INTEGER, " +
+                Contract.ItemList.COMPLETE_STATUS+" INTEGER)";
         db.execSQL(createItem);
         String createTags="CREATE TABLE "+Contract.TagsList.TABLE_NAME+" ("+
                 Contract.TagsList.ID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
@@ -37,8 +38,8 @@ public class ItemOpenHelper extends SQLiteOpenHelper {
                 Contract.TagAssignment.ID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
                 Contract.TagAssignment.ITEM_ID+" INTEGER, "+
                 Contract.TagAssignment.TAG_ID+" INTEGER, "+
-                "FOREIGN KEY ("+Contract.TagAssignment.ITEM_ID+") REFERENCES "+Contract.ItemList.TABLE_NAME+" ("+Contract.ItemList.ID+") , "+
-                "FOREIGN KEY ("+Contract.TagAssignment.TAG_ID+") REFERENCES "+Contract.TagsList.TABLE_NAME+" ("+Contract.TagsList.ID+") )";
+                "FOREIGN KEY ("+Contract.TagAssignment.ITEM_ID+") REFERENCES "+Contract.ItemList.TABLE_NAME+" ("+Contract.ItemList.ID+") ON DELETE CASCADE , "+
+                "FOREIGN KEY ("+Contract.TagAssignment.TAG_ID+") REFERENCES "+Contract.TagsList.TABLE_NAME+" ("+Contract.TagsList.ID+") ON DELETE CASCADE )";
         db.execSQL(createTagAssign);
         String createComments="CREATE TABLE "+Contract.Comments.TABLE_NAME+" ("+
                 Contract.Comments.ID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+

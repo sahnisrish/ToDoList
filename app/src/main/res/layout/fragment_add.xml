@@ -44,24 +44,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp">
-            <android.support.v7.widget.AppCompatSpinner
-                android:layout_width="wrap_content"
-                android:id="@+id/day"
-                android:textAlignment="center"
-                android:layout_weight="1"
-                android:layout_height="match_parent"/>
-            <android.support.v7.widget.AppCompatSpinner
-                android:layout_width="wrap_content"
-                android:layout_weight="1"
-                android:textAlignment="center"
-                android:id="@+id/month"
-                android:layout_height="match_parent"/>
-            <android.support.v7.widget.AppCompatSpinner
-                android:layout_width="wrap_content"
-                android:layout_weight="2"
-                android:textAlignment="center"
-                android:id="@+id/year"
-                android:layout_height="match_parent"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:gravity="center|left"
+                    android:text="date"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                    android:id="@+id/date"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:paddingRight="10dp"
+                    android:id="@+id/picker"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/picker"/>
+            </LinearLayout>
         </LinearLayout>
         <TextView
             android:layout_width="match_parent"

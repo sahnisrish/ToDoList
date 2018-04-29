@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:id="@+id/coordinator"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.example.sahni.todolist.MainActivity">
@@ -25,12 +26,11 @@
                 android:theme="@style/AppTheme.popupOverlay"/>
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
-    <fragment
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/main_fragment"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:name="com.example.sahni.todolist.MainFragment"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:id="@+id/add"
@@ -41,10 +41,40 @@
         app:srcCompat="@drawable/ic_add_black_24dp"
         />
     <LinearLayout
-        android:id="@+id/titleTag"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:orientation="horizontal"
-        android:layout_gravity="bottom" />
+        android:orientation="vertical"
+        android:layout_gravity="bottom" >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:background="@color/textDescriptionColor"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/completedTab"
+                android:layout_height="match_parent"
+                android:layout_gravity="bottom"
+                android:textColor="@color/Background"
+                android:text="0 items Completed"
+                android:padding="10dp"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+            <TextView
+                android:id="@+id/delete"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:padding="10dp"
+                android:text="Delete"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                android:textColor="@color/colorPrimaryDark"
+                android:layout_gravity="left"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/titleTag"
+            android:orientation="vertical"
+            android:background="?attr/colorPrimary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

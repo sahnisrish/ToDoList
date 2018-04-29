@@ -16,6 +16,7 @@ public class Contract {
         public static final String DESCRIPTION="description";
         public static final String DEADLINE="deadline";
         public static final String PRIORITY="priority";
+        public static final String COMPLETE_STATUS="complete";
     }
     static class TagsList{
         public static final String TABLE_NAME="tag_list";

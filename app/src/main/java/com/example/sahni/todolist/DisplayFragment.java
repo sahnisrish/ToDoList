@@ -29,6 +29,7 @@ public class DisplayFragment extends Fragment {
     ListView Comments;
     ArrayList<Comments> comments;
     CommentsAdapter adapter;
+    public int status=Constant.NOT_COMPLETED;
     SQLiteDatabase database;
     View rootView;
     Context activity;
@@ -61,8 +62,13 @@ public class DisplayFragment extends Fragment {
         item=new ListItem(cursor.getString(cursor.getColumnIndex(Contract.ItemList.ITEM)),
                 cursor.getLong(cursor.getColumnIndex(Contract.ItemList.DEADLINE)),
                 cursor.getInt(cursor.getColumnIndex(Contract.ItemList.PRIORITY)),
-                cursor.getInt(cursor.getColumnIndex(Contract.ItemList.ID)));
+                cursor.getInt(cursor.getColumnIndex(Contract.ItemList.ID)),
+                cursor.getInt(cursor.getColumnIndex(Contract.ItemList.COMPLETE_STATUS)));
         LinearLayout dataBar=rootView.findViewById(R.id.dataBar);
+        if(item.completeStatus==Constant.COMPLETED){
+            status=Constant.COMPLETED;
+            dataBar.setBackgroundColor(dataBar.getResources().getColor(R.color.deselectedColor));
+        }
         TextView ToDo=dataBar.findViewById(R.id.todo);
         TextView Description=dataBar.findViewById(R.id.description);
         TextView Date=dataBar.findViewById(R.id.date);

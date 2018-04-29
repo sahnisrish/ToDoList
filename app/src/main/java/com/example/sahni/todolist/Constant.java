@@ -24,6 +24,8 @@ public class Constant {
     public static final int REQUEST_VIEW = 4;
     public static final int NO_TAGS_SELECTED = -1;
     public static final int TAGS_SELECTED = 1;
+    public static final int COMPLETED=1;
+    public static final int NOT_COMPLETED=-1;
     public static final String ID_KEY="id";
     public static final String REQUEST_KEY="request";
     public static final String EDIT="edit";

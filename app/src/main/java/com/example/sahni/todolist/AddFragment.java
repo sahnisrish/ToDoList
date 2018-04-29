@@ -2,6 +2,7 @@ package com.example.sahni.todolist;
 
 
 import android.app.AlarmManager;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,21 +15,20 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import static android.content.Context.ALARM_SERVICE;
@@ -37,7 +37,7 @@ import static android.content.Context.ALARM_SERVICE;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AddFragment extends Fragment implements AdapterView.OnItemSelectedListener, View.OnClickListener {
+public class AddFragment extends Fragment implements View.OnClickListener {
     View rootView;
     //Activity
     Context activity;
@@ -47,14 +47,10 @@ public class AddFragment extends Fragment implements AdapterView.OnItemSelectedL
     EditText Description;
     Bundle bundle;
     //DateSet
-    Spinner Day;
-    Spinner Month;
-    Spinner Year;
+    ImageView picker;
+    TextView date;
     String setDate;
-    Long presetDate;
-    ArrayAdapter<String> days;
-    ArrayAdapter<String> months;
-    ArrayAdapter<String> years;
+    Long epochDate;
     //Tags
     LinearLayout selectedTags;
     Button addTag;
@@ -113,11 +109,21 @@ public class AddFragment extends Fragment implements AdapterView.OnItemSelectedL
         setPriorityTag();
         openHelper=ItemOpenHelper.getInstance(activity);
         ToDo=rootView.findViewById(R.id.item);
+        date=rootView.findViewById(R.id.date);
+        picker=rootView.findViewById(R.id.picker);
+        picker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FetchDate();
+            }
+        });
         setTag();
         Description=rootView.findViewById(R.id.idescription);
         bundle=getArguments();
         REQUEST=bundle.getInt(Constant.REQUEST_KEY);
         priority=rootView.findViewById(R.id.none);
+        epochDate=System.currentTimeMillis();
+        setDate();
         if(REQUEST==Constant.REQUEST_EDIT)
             setValues();
         else if((REQUEST==Constant.REQUEST_ADD)&&(bundle.getBoolean(Constant.HAS_TAG,false)))
@@ -125,11 +131,33 @@ public class AddFragment extends Fragment implements AdapterView.OnItemSelectedL
         else if((REQUEST==Constant.REQUEST_ADD)&&(bundle.getBoolean(Constant.HAS_PRIORITY,false)))
             getPriority(bundle.getInt(Constant.Priority));
         setComment();
-        createDateBar();
         priority.setEnabled(false);
         priority.setBackgroundResource(R.drawable.button);
         return rootView;
     }
+
+    private void FetchDate() {
+        Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(R.layout.date_picker);
+        dialog.setTitle("");
+        DatePicker datePicker=dialog.findViewById(R.id.date_picker);
+        final Calendar calendar=Calendar.getInstance();
+        calendar.setTimeInMillis(epochDate);
+        datePicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), new DatePicker.OnDateChangedListener() {
+            @Override
+            public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                calendar.set(year,monthOfYear,dayOfMonth);
+                if((Constant.format.format(calendar.getTimeInMillis()).equals(Constant.format.format(System.currentTimeMillis()))) || (calendar.getTimeInMillis() > System.currentTimeMillis())) {
+                    epochDate = calendar.getTimeInMillis();
+                    setDate();
+                }
+                else
+                    Toast.makeText(getContext(),"INVALID DEADLINE",Toast.LENGTH_SHORT).show();
+            }
+        });
+        dialog.show();
+    }
+
     private void setComment() {
         addedComments = rootView.findViewById(R.id.addedComments);
         addComment=rootView.findViewById(R.id.addcomment);
@@ -262,7 +290,8 @@ public class AddFragment extends Fragment implements AdapterView.OnItemSelectedL
         ListItem item= new ListItem(cursor.getString(cursor.getColumnIndex(Contract.ItemList.ITEM)),
                 cursor.getLong(cursor.getColumnIndex(Contract.ItemList.DEADLINE)),
                 cursor.getInt(cursor.getColumnIndex(Contract.ItemList.PRIORITY)),
-                cursor.getInt(cursor.getColumnIndex(Contract.ItemList.ID)));
+                cursor.getInt(cursor.getColumnIndex(Contract.ItemList.ID)),
+                cursor.getInt(cursor.getColumnIndex(Contract.ItemList.COMPLETE_STATUS)));
         ToDo.setText(item.getItemName());
         Description.setText(cursor.getString(cursor.getColumnIndex(Contract.ItemList.DESCRIPTION)));
         TagView.addMultipleTags(activity, selectedTags, id, new View.OnClickListener() {
@@ -279,7 +308,8 @@ public class AddFragment extends Fragment implements AdapterView.OnItemSelectedL
                 return true;
             }
         });
-        presetDate=item.getDeadLineLong();
+        epochDate =item.getDeadLineLong();
+        setDate();
         getPriority(item.getPriority());
     }
 
@@ -313,44 +343,14 @@ public class AddFragment extends Fragment implements AdapterView.OnItemSelectedL
         builder.show();
     }
 
-    private void createDateBar() {
-        Day=rootView.findViewById(R.id.day);
-        Month=rootView.findViewById(R.id.month);
-        Year=rootView.findViewById(R.id.year);
-        Day.setOnItemSelectedListener(this);
-        Month.setOnItemSelectedListener(this);
-        Year.setOnItemSelectedListener(this);
-        days= new ArrayAdapter<>(activity,android.R.layout.simple_spinner_item,Constant.IntSet(1,31));
-        months= new ArrayAdapter<>(activity,android.R.layout.simple_spinner_item,Constant.setMonth());
-        years= new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, Constant.IntSet(2018,2025));
-        days.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        months.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        years.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        Day.setAdapter(days);
-        Month.setAdapter(months);
-        Year.setAdapter(years);
-        setDate();
-    }
 
     private void setDate() {
-        if(presetDate==null) {
-            presetDate = System.currentTimeMillis();
+        if(epochDate ==null) {
+            epochDate = System.currentTimeMillis();
         }
-        Date date=new Date(presetDate);
+        Date date=new Date(epochDate);
         setDate=Constant.format.format(date);
-        Day.setSelection(days.getPosition(setDate.substring(0,2)));
-        Month.setSelection(months.getPosition(setDate.substring(3,6)));
-        Year.setSelection(years.getPosition(setDate.substring(7)));
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        setDate=Day.getSelectedItem().toString()+"/"+Month.getSelectedItem().toString()+"/"+Year.getSelectedItem().toString();
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
+        this.date.setText(setDate);
     }
 
     public void save() {
@@ -363,8 +363,10 @@ public class AddFragment extends Fragment implements AdapterView.OnItemSelectedL
                     values.put(Contract.ItemList.DEADLINE, EpochDate());
                     values.put(Contract.ItemList.DESCRIPTION, Description.getText().toString());
                     values.put(Contract.ItemList.PRIORITY, (int) priority.getTag());
+                    values.put(Contract.ItemList.COMPLETE_STATUS,Constant.NOT_COMPLETED);
                     if (REQUEST == Constant.REQUEST_ADD) {
                         id = (int) database.insert(Contract.ItemList.TABLE_NAME, null, values);
+                        Log.e("ADD ID", "save: "+id);
                         Bundle bundle = new Bundle();
                         bundle.putInt(Constant.ID_KEY, Integer.parseInt(id + ""));
                         bundle.putBoolean(Constant.HAS_TAG, this.bundle.getBoolean(Constant.HAS_TAG, false));
@@ -405,7 +407,7 @@ public class AddFragment extends Fragment implements AdapterView.OnItemSelectedL
             pendingIntent = PendingIntent.getBroadcast(activity, id, intent, 0);
         }
         try {
-            alarm.setRepeating(AlarmManager.RTC, EpochDate(),12*60*60*1000,pendingIntent);
+            alarm.setRepeating(AlarmManager.RTC, EpochDate(),6*60*60*1000,pendingIntent);
             Log.e("Created Notification", "createNotification: "+id+" "+Constant.format.format(new Date(EpochDate())));
         } catch (ParseException e) {
             Log.e("DATE", "createNotification: invalid type" );

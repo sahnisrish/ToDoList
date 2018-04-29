@@ -4,11 +4,14 @@ package com.example.sahni.todolist;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -38,6 +42,7 @@ public class MainFragment extends Fragment implements ListAdapterRecycle.Checked
     //List
     ArrayList<ListItem> list;
     ListAdapterRecycle adapter;
+    int n;
     //Database
     ItemOpenHelper openHelper;
     SQLiteDatabase database;
@@ -50,6 +55,7 @@ public class MainFragment extends Fragment implements ListAdapterRecycle.Checked
     Display displayItem;
     Edit editItem;
     TagDescription tagDescription;
+    SetCompleted setCompleted;
     Bundle bundle;
 
     interface Add{
@@ -64,7 +70,9 @@ public class MainFragment extends Fragment implements ListAdapterRecycle.Checked
     interface TagDescription{
         void setTagDescription(int i,TextView tagDetails);
     }
-
+    interface SetCompleted{
+        void completed(int n);
+    }
     public MainFragment() {
     }
 
@@ -77,6 +85,7 @@ public class MainFragment extends Fragment implements ListAdapterRecycle.Checked
             editItem=(Edit)activity;
             displayItem=(Display)activity;
             tagDescription =(TagDescription)activity;
+            setCompleted = (SetCompleted)activity;
         }
         catch (ClassCastException e)
         {
@@ -138,9 +147,15 @@ public class MainFragment extends Fragment implements ListAdapterRecycle.Checked
             ListItem listItem=new ListItem(cursor.getString(cursor.getColumnIndex(Contract.ItemList.ITEM)),
                     cursor.getLong(cursor.getColumnIndex(Contract.ItemList.DEADLINE)),
                     cursor.getInt(cursor.getColumnIndex(Contract.ItemList.PRIORITY)),
-                    cursor.getInt(cursor.getColumnIndex(Contract.ItemList.ID)));
+                    cursor.getInt(cursor.getColumnIndex(Contract.ItemList.ID)),
+                    cursor.getInt(cursor.getColumnIndex(Contract.ItemList.COMPLETE_STATUS)));
             listItems.add(listItem);
         }
+        n=0;
+        for(int i=0;i<listItems.size();i++)
+            if(listItems.get(i).completeStatus==Constant.COMPLETED)
+                n++;
+        setCompleted.completed(n);
         return listItems;
     }
     @Override
@@ -165,13 +180,13 @@ public class MainFragment extends Fragment implements ListAdapterRecycle.Checked
         if(isChecked){
             int id=list.get(position).getId();
             database=openHelper.getWritableDatabase();
-            database.delete(Contract.TagAssignment.TABLE_NAME,Contract.TagAssignment.ITEM_ID+" = ?", new String[]{id + ""});
-            DeleteExtraTags();
-            database.delete(Contract.ItemList.TABLE_NAME,Contract.ItemList.ID+"=?", new String[]{id + ""});
-            list.remove(position);
-            if(hasTag)
-                tagDetails.setText(list.size()+" items opened");
-            adapter.notifyItemRemoved(position);
+            ContentValues values = new ContentValues();
+            values.put(Contract.ItemList.COMPLETE_STATUS,Constant.COMPLETED);
+            database.update(Contract.ItemList.TABLE_NAME,values,Contract.ItemList.ID+" = ?",new String[]{id+""});
+            list.get(position).completeStatus=Constant.COMPLETED;
+            n++;
+            setCompleted.completed(n);
+            adapter.notifyDataSetChanged();
             CancelNotification(id);
         }
     }
@@ -213,19 +228,22 @@ public class MainFragment extends Fragment implements ListAdapterRecycle.Checked
                 database = openHelper.getReadableDatabase();
                 String[] args = {id + ""};
                 Cursor cursor = database.query(Contract.ItemList.TABLE_NAME, null, Contract.ItemList.ID + " =?", args, null, null, null);
-                cursor.moveToFirst();
-                ListItem listItem = new ListItem(cursor.getString(cursor.getColumnIndex(Contract.ItemList.ITEM)),
-                        cursor.getLong(cursor.getColumnIndex(Contract.ItemList.DEADLINE)),
-                        cursor.getInt(cursor.getColumnIndex(Contract.ItemList.PRIORITY)),
-                        cursor.getInt(cursor.getColumnIndex(Contract.ItemList.ID)));
-                int pos;
-                for (pos = 0; pos < list.size(); pos++)
-                    if (!list.get(pos).liesAbove(listItem))
-                        break;
-                list.add(pos, listItem);
-                adapter.notifyItemInserted(pos);
-                if(hasTag)
-                    tagDetails.setText(list.size()+" items opened");
+
+                if(cursor.moveToFirst()) {
+                    ListItem listItem = new ListItem(cursor.getString(cursor.getColumnIndex(Contract.ItemList.ITEM)),
+                            cursor.getLong(cursor.getColumnIndex(Contract.ItemList.DEADLINE)),
+                            cursor.getInt(cursor.getColumnIndex(Contract.ItemList.PRIORITY)),
+                            cursor.getInt(cursor.getColumnIndex(Contract.ItemList.ID)),
+                            cursor.getInt(cursor.getColumnIndex(Contract.ItemList.COMPLETE_STATUS)));
+                    int pos;
+                    for (pos = 0; pos < list.size(); pos++)
+                        if (!list.get(pos).liesAbove(listItem))
+                            break;
+                    list.add(pos, listItem);
+                    adapter.notifyItemInserted(pos);
+                    if (hasTag)
+                        tagDetails.setText(list.size() + " items opened");
+                }
             }
         }
         else if(((requestCode==Constant.REQUEST_EDIT)||(requestCode==Constant.REQUEST_DISPLAY))&&(resultCode==Constant.RESULT_EDIT)){
@@ -240,7 +258,8 @@ public class MainFragment extends Fragment implements ListAdapterRecycle.Checked
                 ListItem listItem = new ListItem(cursor.getString(cursor.getColumnIndex(Contract.ItemList.ITEM)),
                         cursor.getLong(cursor.getColumnIndex(Contract.ItemList.DEADLINE)),
                         cursor.getInt(cursor.getColumnIndex(Contract.ItemList.PRIORITY)),
-                        cursor.getInt(cursor.getColumnIndex(Contract.ItemList.ID)));
+                        cursor.getInt(cursor.getColumnIndex(Contract.ItemList.ID)),
+                        cursor.getInt(cursor.getColumnIndex(Contract.ItemList.COMPLETE_STATUS)));
                 int pos;
                 for (pos = 0; pos < list.size(); pos++)
                     if (list.get(pos).getId() == id)
@@ -258,12 +277,23 @@ public class MainFragment extends Fragment implements ListAdapterRecycle.Checked
     }
 
     public void modifyData() {
-        list.clear();
         tagDescription.setTagDescription(Constant.NO_TAGS_SELECTED,null);
+        list.clear();
         list.addAll(fetchData());
         adapter.notifyDataSetChanged();
     }
 
+    public void deleteCompleted() {
+        if(n!=0) {
+            database = openHelper.getWritableDatabase();
+            database.delete(Contract.ItemList.TABLE_NAME,Contract.ItemList.COMPLETE_STATUS+" = ?",new String[]{Constant.COMPLETED+""});
+            list.clear();
+            list.addAll(fetchData());
+            adapter.notifyDataSetChanged();
+        }
+        else
+            Toast.makeText(getContext(),"Nothing to Delete",Toast.LENGTH_SHORT).show();
+    }
     public void add() {
         addItem.CallAdd(hasTag,tag);
     }

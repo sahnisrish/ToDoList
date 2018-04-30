@@ -46,7 +46,14 @@
         android:orientation="vertical"
         android:layout_gravity="bottom" >
         <LinearLayout
+            android:id="@+id/titleTag"
+            android:orientation="vertical"
+            android:background="?attr/colorPrimary"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:id="@+id/Tab"
             android:background="@color/textDescriptionColor"
             android:orientation="horizontal"
             android:layout_height="wrap_content">
@@ -70,11 +77,5 @@
                 android:textColor="@color/colorPrimaryDark"
                 android:layout_gravity="left"/>
         </LinearLayout>
-        <LinearLayout
-            android:id="@+id/titleTag"
-            android:orientation="vertical"
-            android:background="?attr/colorPrimary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

@@ -134,7 +134,8 @@ public class MainFragment extends Fragment implements ListAdapterRecycle.Checked
                 final String Query="SELECT "+Contract.ItemList.TABLE_NAME+"."+Contract.ItemList.ID+", "+
                         Contract.ItemList.TABLE_NAME+"."+Contract.ItemList.DEADLINE+", "+
                         Contract.ItemList.TABLE_NAME+"."+Contract.ItemList.PRIORITY+", "+
-                        Contract.ItemList.TABLE_NAME+"."+Contract.ItemList.ITEM+" FROM "+
+                        Contract.ItemList.TABLE_NAME+"."+Contract.ItemList.ITEM+", "+
+                        Contract.ItemList.TABLE_NAME+"."+Contract.ItemList.COMPLETE_STATUS+" FROM "+
                         Contract.ItemList.TABLE_NAME+", "+Contract.TagAssignment.TABLE_NAME+
                         " WHERE "+Contract.ItemList.TABLE_NAME+"."+Contract.ItemList.ID+"="+Contract.TagAssignment.TABLE_NAME+"."+Contract.TagAssignment.ITEM_ID+
                         " AND "+Contract.TagAssignment.TABLE_NAME+"."+Contract.TagAssignment.TAG_ID+"="+tagId+" ORDER BY "+Contract.ItemList.PRIORITY + " DESC, "+Contract.ItemList.DEADLINE;
@@ -290,6 +291,9 @@ public class MainFragment extends Fragment implements ListAdapterRecycle.Checked
             list.clear();
             list.addAll(fetchData());
             adapter.notifyDataSetChanged();
+            if(hasTag){
+                tagDetails.setText(list.size()+" items opened");
+            }
         }
         else
             Toast.makeText(getContext(),"Nothing to Delete",Toast.LENGTH_SHORT).show();

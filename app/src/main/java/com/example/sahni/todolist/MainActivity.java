@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Add,
     TextView delete;
     Menu menu;
     Bundle bundle;
+    LinearLayout Tab;
     MainFragment fragment;
     AddFragment addFragment;
     DisplayFragment displayFragment;
@@ -45,11 +46,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Add,
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
-        fragment= new MainFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.main_fragment,fragment).commit();
         titleTag=findViewById(R.id.titleTag);
         completedTab=findViewById(R.id.completedTab);
         delete=findViewById(R.id.delete);
+        Tab=findViewById(R.id.Tab);
+        fragment= new MainFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.main_fragment,fragment).commit();
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -366,6 +368,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Add,
 
     @Override
     public void completed(int n) {
+        if(n==0)
+            Tab.setVisibility(View.GONE);
+        else
+            Tab.setVisibility(View.VISIBLE);
         completedTab.setText(n+" items Completed");
     }
 }

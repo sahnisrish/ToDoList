@@ -32,7 +32,7 @@ To view details of an element you have to click it once.
 Long clicks open it in edit mode. 
 Edit mode can also be opened from the display mode.
 <br/>
-![display](https://user-images.githubusercontent.com/36541302/40448576-89f58384-5ef3-11e8-9e07-5d82831a9575.png)
+![webp net-resizeimage](https://user-images.githubusercontent.com/36541302/40448843-55ee892c-5ef4-11e8-8a37-4221cb7023b4.png)
 ![edit](https://user-images.githubusercontent.com/36541302/40448584-8e1f6ce0-5ef3-11e8-91d8-56c6befc9da7.png)
 <br/><br/>
 The horizonta view has a section on the screen for edit n display windows to open.

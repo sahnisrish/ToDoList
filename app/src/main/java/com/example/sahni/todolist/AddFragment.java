@@ -242,7 +242,7 @@ public class AddFragment extends Fragment implements View.OnClickListener {
         priority.setBackgroundResource(R.drawable.selected_button);
         priority=(Button)v;
         priority.setBackgroundResource(R.drawable.button);
-        priority.setEnabled(true);
+        priority.setEnabled(false);
         if((int)priority.getTag()!=bundle.getInt(Constant.Priority,-1))
             bundle.remove(Constant.HAS_PRIORITY);
         else if((int)priority.getTag()==bundle.getInt(Constant.Priority,-1))

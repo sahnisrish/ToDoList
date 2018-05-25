@@ -16,7 +16,7 @@ A dialouge appears if you try to exit without saving to ensure the data isn't lo
 <br/>
 ![add](https://user-images.githubusercontent.com/36541302/40448050-fce7336c-5ef1-11e8-8d80-a05e27ad3cc1.png)
 ![date picker](https://user-images.githubusercontent.com/36541302/40448043-fc5dbd08-5ef1-11e8-8f9f-16b5333959cf.png)
-![tags comments](https://user-images.githubusercontent.com/36541302/40448039-fc29f892-5ef1-11e8-86d2-a293848b9969.png)
+![add](https://user-images.githubusercontent.com/36541302/40564375-0ebe5166-6086-11e8-8650-0824b9ca8823.png)
 ![save dialouge](https://user-images.githubusercontent.com/36541302/40448038-fbfa4318-5ef1-11e8-91e8-b536ab481a19.png)
 <br/><br/>
 The data is arranged according to the priority first.
